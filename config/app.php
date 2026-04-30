@@ -123,4 +123,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /**
+     * Default Credentials for Make Super Admin Command
+     */
+    'default_super_admin' => [
+        'name' => env('DEFAULT_SUPERADMIN_NAME', 'Super Admin'),
+        'username' => env('DEFAULT_SUPERADMIN_USERNAME', 'superadmin'),
+        'password' => env('DEFAULT_SUPERADMIN_PASSWORD', 'password')
+    ]
+
 ];
