@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
+import {
+    BookOpen,
+    File,
+    FolderGit2,
+    LayoutGrid,
+    Milestone,
+    Tag,
+} from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,6 +22,9 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import article from '@/routes/article';
+import category from '@/routes/category';
+import tag from '@/routes/tag';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -22,6 +32,21 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Category',
+        href: category.index(),
+        icon: Milestone,
+    },
+    {
+        title: 'Tag',
+        href: tag.index(),
+        icon: Tag,
+    },
+    {
+        title: 'Article',
+        href: article.index(),
+        icon: File,
     },
 ];
 
