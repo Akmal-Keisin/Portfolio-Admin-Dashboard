@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { SearchIcon } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group';
 import Table from '@/components/ui/table/Table.vue';
 import TableBody from '@/components/ui/table/TableBody.vue';
 import TableCaption from '@/components/ui/table/TableCaption.vue';
@@ -68,42 +75,49 @@ const invoices = [
 </script>
 
 <template>
-    <Head title="Dashboard" />
-
-    <div class="relative flex flex-col overflow-auto p-4 lg:px-6">
-        <div class="overflow-hidden rounded-lg border">
-            <Table>
-                <TableCaption>A list of your recent invoices.</TableCaption>
-                <TableHeader class="sticky top-0 z-10 bg-muted">
-                    <TableRow>
-                        <TableHead class="w-25"> Invoice </TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Method</TableHead>
-                        <TableHead class="text-right"> Amount </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody class="**:data-[slot=table-cell]:first:w-8">
-                    <TableRow
-                        v-for="invoice in invoices"
-                        :key="invoice.invoice"
-                    >
-                        <TableCell class="font-medium">
-                            {{ invoice.invoice }}
-                        </TableCell>
-                        <TableCell>{{ invoice.paymentStatus }}</TableCell>
-                        <TableCell>{{ invoice.paymentMethod }}</TableCell>
-                        <TableCell class="text-right">
-                            {{ invoice.totalAmount }}
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colspan="3"> Total </TableCell>
-                        <TableCell class="text-right"> $2,500.00 </TableCell>
-                    </TableRow>
-                </TableFooter>
-            </Table>
+    <Head title="Category" />
+    <div class="mb-2 flex items-center justify-between">
+        <div>
+            <InputGroup>
+                <InputGroupInput placeholder="Search..." />
+                <InputGroupAddon>
+                    <SearchIcon />
+                </InputGroupAddon>
+            </InputGroup>
         </div>
+        <div>
+            <Button>Create</Button>
+        </div>
+    </div>
+    <div class="overflow-hidden rounded-sm border">
+        <Table>
+            <TableCaption>A list of your recent invoices.</TableCaption>
+            <TableHeader class="sticky top-0 z-10 bg-muted">
+                <TableRow>
+                    <TableHead class="w-25"> Invoice </TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead class="text-right"> Amount </TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody class="**:data-[slot=table-cell]:first:w-8">
+                <TableRow v-for="invoice in invoices" :key="invoice.invoice">
+                    <TableCell class="font-medium">
+                        {{ invoice.invoice }}
+                    </TableCell>
+                    <TableCell>{{ invoice.paymentStatus }}</TableCell>
+                    <TableCell>{{ invoice.paymentMethod }}</TableCell>
+                    <TableCell class="text-right">
+                        {{ invoice.totalAmount }}
+                    </TableCell>
+                </TableRow>
+            </TableBody>
+            <TableFooter>
+                <TableRow>
+                    <TableCell colspan="3"> Total </TableCell>
+                    <TableCell class="text-right"> $2,500.00 </TableCell>
+                </TableRow>
+            </TableFooter>
+        </Table>
     </div>
 </template>
