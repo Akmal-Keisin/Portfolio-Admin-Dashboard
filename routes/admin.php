@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Admin\Article\ViewArticleController;
+use App\Http\Controllers\Admin\Category\DeleteCategoryController;
+use App\Http\Controllers\Admin\Category\StoreCategoryController;
+use App\Http\Controllers\Admin\Category\UpdateCategoryController;
 use App\Http\Controllers\Admin\Category\ViewCategoryController;
 use App\Http\Controllers\Admin\Dashboard\ViewDashboardController;
 use App\Http\Controllers\Admin\Tag\ViewTagController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('dashboard', [ViewDashboardController::class, 'index'])->name('dashboard');
@@ -14,7 +16,10 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::prefix('category')->name('category.')->group(function () {
         Route::get('/', [ViewCategoryController::class, 'index'])->name('index');
         Route::get('/create', [ViewCategoryController::class, 'create'])->name('create');
+        Route::post('/', StoreCategoryController::class)->name('store');
         Route::get('/{category}/edit', [ViewCategoryController::class, 'edit'])->name('edit');
+        Route::put('/{category}', UpdateCategoryController::class)->name('update');
+        Route::delete('/{category}', DeleteCategoryController::class)->name('destroy');
     });
 
     // Tag
