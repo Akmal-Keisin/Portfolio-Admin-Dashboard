@@ -14,6 +14,9 @@ class ViewArticleController extends Controller
         return Inertia::render('admin/article/Index');
     }
 
-    public function create() {}
+    public function create()
+    {
+        return Inertia::render('admin/article/Create');
+    }
     public function edit(Article $article) {}
 }
