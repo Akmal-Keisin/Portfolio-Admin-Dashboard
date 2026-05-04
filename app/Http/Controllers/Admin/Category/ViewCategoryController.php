@@ -28,7 +28,7 @@ class ViewCategoryController extends Controller
     public function edit(Category $category)
     {
         return Inertia::render('admin/category/Edit', [
-            'category' => $category->toResource()
+            'category' => new CategoryResource($category)
         ]);
     }
 }

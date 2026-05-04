@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin\Tag;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTagRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class UpdateTagRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +24,13 @@ class UpdateTagRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('tags')->ignore($this->id)
+            ],
+            'description' => 'nullable|string|max:255'
         ];
     }
 }

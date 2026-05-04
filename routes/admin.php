@@ -6,6 +6,9 @@ use App\Http\Controllers\Admin\Category\StoreCategoryController;
 use App\Http\Controllers\Admin\Category\UpdateCategoryController;
 use App\Http\Controllers\Admin\Category\ViewCategoryController;
 use App\Http\Controllers\Admin\Dashboard\ViewDashboardController;
+use App\Http\Controllers\Admin\Tag\DeleteTagController;
+use App\Http\Controllers\Admin\Tag\StoreTagController;
+use App\Http\Controllers\Admin\Tag\UpdateTagController;
 use App\Http\Controllers\Admin\Tag\ViewTagController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +29,10 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::prefix('tag')->name('tag.')->group(function () {
         Route::get('/', [ViewTagController::class, 'index'])->name('index');
         Route::get('/create', [ViewTagController::class, 'create'])->name('create');
+        Route::post('/', StoreTagController::class)->name('store');
         Route::get('/{tag}/edit', [ViewTagController::class, 'edit'])->name('edit');
+        Route::put('/{tag}', UpdateTagController::class)->name('update');
+        Route::delete('/{tag}', DeleteTagController::class)->name('destroy');
     });
 
     // Article

@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,7 +21,7 @@ class SecurityController extends Controller
             'canManageTwoFactor' => true,
         ];
 
-        $request->ensureStateIsValid();
+        // $request->ensureStateIsValid();
 
         $props['twoFactorEnabled'] = false;
         $props['requiresConfirmation'] = false;
