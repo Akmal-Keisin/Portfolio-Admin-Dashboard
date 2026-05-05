@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tags', function (Blueprint $table) {
+        Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 50)->unique();
+            $table->foreignId('category_id')->constrained()->index();
+            $table->string('title', 50)->index();
             $table->string('slug', 50)->unique();
-            $table->string('description');
-            $table->unsignedInteger('article_count')->default(0);
+            $table->string('excerpt');
+            $table->jsonb('content');
+            $table->enum('status', ['draft', 'published', 'archived'])->index()->default('draft');
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tags');
+        Schema::dropIfExists('articles');
     }
 };

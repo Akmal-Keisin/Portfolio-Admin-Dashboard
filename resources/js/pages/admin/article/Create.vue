@@ -20,7 +20,6 @@ import {
     FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import category from '@/routes/category';
 import type { ArticleForm, ArticleFormErrors } from './types';
@@ -44,10 +43,13 @@ const breadcrumbs = ref([
 
 // Form
 const form = useForm<ArticleForm>({
-    name: '',
-    description: '',
+    title: '',
+    content: '',
+    category: 0,
+    tags: [],
 });
 
+// Functions
 const handleSubmit = () => {
     console.log('tes');
     form.post(category.store().url);
@@ -70,68 +72,51 @@ const handleSubmit = () => {
                     <FieldGroup>
                         <!-- Article Name Field -->
                         <Field>
-                            <FieldLabel
-                                >Name
-                                <span class="text-destructive"
-                                    >*</span
-                                ></FieldLabel
-                            >
+                            <FieldLabel>
+                                Title
+                                <span class="text-destructive">*</span>
+                            </FieldLabel>
                             <Input
-                                id="category_name"
+                                id="title"
                                 :class="{
                                     'border-destructive outline-destructive':
-                                        errors?.name,
+                                        errors?.title,
                                 }"
                                 type="text"
-                                name="name"
-                                placeholder="e.g. Technology"
-                                v-model="form.name"
+                                name="title"
+                                placeholder="e.g. What Is Going On With The Tech World?"
+                                v-model="form.title"
                             />
-                            <FieldDescription
-                                >Short, descriptive name</FieldDescription
-                            >
+                            <FieldDescription>
+                                Your article title
+                            </FieldDescription>
 
                             <!-- Article Name Error Message -->
                             <FieldDescription
-                                v-if="errors?.name"
+                                v-if="errors?.title"
                                 class="flex items-center gap-1 text-destructive"
                             >
                                 <TriangleAlert :size="16" />
-                                {{ errors?.name }}
+                                {{ errors?.title }}
                                 Test
                             </FieldDescription>
                         </Field>
 
-                        <!-- Description Field -->
+                        <!-- Content Field -->
                         <Field>
-                            <FieldLabel>Description</FieldLabel>
-                            <Textarea
-                                id="description"
-                                :class="{
-                                    'border-destructive outline-destructive':
-                                        errors?.description,
-                                }"
-                                placeholder="Optional, briefly describe this category..."
-                                v-model="form.description"
-                                rows="3"
-                                maxlength="255"
-                            />
-                            <FieldDescription
-                                >Describe what is the category
-                                about</FieldDescription
-                            >
+                            <FieldLabel>Content</FieldLabel>
+                            <TipTap v-model="form.content" />
+                            <FieldDescription>
+                                Write your article here
+                            </FieldDescription>
                             <!-- Description Error Message -->
                             <FieldDescription
-                                v-if="errors?.description"
+                                v-if="errors?.content"
                                 class="flex items-center gap-1 text-destructive"
                             >
                                 <TriangleAlert :size="16" />
-                                {{ errors?.description }}
+                                {{ errors?.content }}
                             </FieldDescription>
-                        </Field>
-
-                        <Field>
-                            <TipTap />
                         </Field>
                     </FieldGroup>
                 </FieldSet>
@@ -144,7 +129,12 @@ const handleSubmit = () => {
                 </Button>
                 <Button
                     variant="default"
-                    :disabled="form.processing || !form.name"
+                    :disabled="
+                        form.processing ||
+                        !form.title ||
+                        !form.content ||
+                        !form.category
+                    "
                     @click="handleSubmit"
                 >
                     <Loader v-if="form.processing" class="animate-spin" />

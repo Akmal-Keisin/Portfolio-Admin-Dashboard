@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\Article\DeleteArticleController;
+use App\Http\Controllers\Admin\Article\StoreArticleController;
+use App\Http\Controllers\Admin\Article\UpdateArticleController;
 use App\Http\Controllers\Admin\Article\ViewArticleController;
 use App\Http\Controllers\Admin\Category\DeleteCategoryController;
 use App\Http\Controllers\Admin\Category\StoreCategoryController;
@@ -38,7 +41,10 @@ Route::middleware(['auth:admin'])->group(function () {
     // Article
     Route::prefix('article')->name('article.')->group(function () {
         Route::get('/', [ViewArticleController::class, 'index'])->name('index');
+        Route::post('/', StoreArticleController::class)->name('store');
         Route::get('/create', [ViewArticleController::class, 'create'])->name('create');
         Route::get('/{article}/edit', [ViewArticleController::class, 'edit'])->name('edit');
+        Route::put('/{article}', UpdateArticleController::class)->name('update');
+        Route::delete('/{article}', DeleteArticleController::class)->name('destroy');
     });
 });

@@ -1,12 +1,16 @@
 export type ArticleForm = {
     id?: number;
-    name: string;
-    description?: string;
+    title: string;
+    content: string;
+    category: number;
+    tags: number[];
 };
 
 export type ArticleFormErrors = {
-    name?: string;
-    description?: string;
+    title?: string;
+    content?: string;
+    category?: string;
+    tags?: string;
 };
 
 // export type ArticlePagination = {};
