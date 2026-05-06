@@ -1,7 +1,9 @@
+import type { JSONContent } from '@tiptap/vue-3';
+
 export type ArticleForm = {
     id?: number;
     title: string;
-    content: string;
+    content: JSONContent;
     category: number;
     tags: number[];
 };

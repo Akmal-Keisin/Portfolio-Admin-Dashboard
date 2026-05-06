@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import type { JSONContent } from '@tiptap/vue-3';
 import { ArrowLeft, CheckCircle, Loader, TriangleAlert } from 'lucide-vue-next';
 import { ref } from 'vue';
 import TipTap from '@/components/TipTap/TipTap.vue';
@@ -20,39 +21,54 @@ import {
     FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AppLayout from '@/layouts/AppLayout.vue';
-import category from '@/routes/category';
+import article from '@/routes/article';
+import type { Category } from '@/types/model/category';
+import type { Tag } from '@/types/model/tag';
 import type { ArticleForm, ArticleFormErrors } from './types';
 
 // Props
 defineProps<{
     errors?: ArticleFormErrors;
+    categories: Category[];
+    tags: Tag[];
 }>();
 
 // Ref
 const breadcrumbs = ref([
     {
         title: 'Article',
-        href: category.index(),
+        href: article.index(),
     },
     {
         title: 'Create',
-        href: category.create(),
+        href: article.create(),
     },
 ]);
 
 // Form
 const form = useForm<ArticleForm>({
     title: '',
-    content: '',
+    content: {},
     category: 0,
     tags: [],
 });
 
 // Functions
+const handleUpdateContent = (content: JSONContent) => {
+    form.content = content;
+};
+
 const handleSubmit = () => {
-    console.log('tes');
-    form.post(category.store().url);
+    form.post(article.store().url);
 };
 </script>
 
@@ -104,8 +120,11 @@ const handleSubmit = () => {
 
                         <!-- Content Field -->
                         <Field>
-                            <FieldLabel>Content</FieldLabel>
-                            <TipTap v-model="form.content" />
+                            <FieldLabel>
+                                Content
+                                <span class="text-destructive"> * </span>
+                            </FieldLabel>
+                            <TipTap @update:content="handleUpdateContent" />
                             <FieldDescription>
                                 Write your article here
                             </FieldDescription>
@@ -118,6 +137,46 @@ const handleSubmit = () => {
                                 {{ errors?.content }}
                             </FieldDescription>
                         </Field>
+                        <Field>
+                            <FieldLabel>
+                                Category
+                                <span class="text-destructive">*</span>
+                            </FieldLabel>
+                            <Select v-model="form.category">
+                                <SelectTrigger>
+                                    <SelectValue
+                                        placeholder="Select a category"
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectLabel>Categories</SelectLabel>
+                                    <template
+                                        v-for="category in categories"
+                                        :key="category.id"
+                                    >
+                                        <SelectItem :value="category.id">
+                                            {{ category.name }}
+                                        </SelectItem>
+                                    </template>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                        <Field>
+                            <FieldLabel> Tags </FieldLabel>
+                            <Select multiple v-model="form.tags">
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select tags" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectLabel>Tags</SelectLabel>
+                                    <template v-for="tag in tags" :key="tag.id">
+                                        <SelectItem :value="tag.id">
+                                            {{ tag.name }}
+                                        </SelectItem>
+                                    </template>
+                                </SelectContent>
+                            </Select>
+                        </Field>
                     </FieldGroup>
                 </FieldSet>
             </CardContent>
@@ -125,7 +184,7 @@ const handleSubmit = () => {
                 class="flex items-center justify-end gap-2 space-y-2 border-t-2 p-4"
             >
                 <Button as-child variant="secondary" class="m-0">
-                    <Link :href="category.index()"><ArrowLeft /> Back</Link>
+                    <Link :href="article.index()"><ArrowLeft /> Back</Link>
                 </Button>
                 <Button
                     variant="default"

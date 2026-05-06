@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('author_id')->constrained('admins')->index();
             $table->foreignId('category_id')->constrained()->index();
-            $table->string('title', 50)->index();
-            $table->string('slug', 50)->unique();
-            $table->string('excerpt');
+            $table->string('title', 255)->index();
+            $table->string('slug', 255)->unique();
+            $table->string('excerpt', 255);
             $table->jsonb('content');
             $table->enum('status', ['draft', 'published', 'archived'])->index()->default('draft');
+            $table->timestampTz('published_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
         });
