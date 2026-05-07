@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('author_id')->constrained('admins')->index();
-            $table->foreignId('category_id')->constrained()->index();
+            $table->foreignId('author_id')->index()->constrained('admins');
+            $table->foreignId('category_id')->index()->constrained('categories');
             $table->string('title', 255)->index();
             $table->string('slug', 255)->unique();
             $table->string('excerpt', 255);
@@ -31,6 +31,13 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('articles', function (Blueprint $table) {
+            $table->dropForeign(['author_id']);
+            $table->dropIndex(['author_id']);
+            $table->dropForeign(['category_id']);
+            $table->dropIndex(['category_id']);
+            $table->dropIndex(['status']);
+        });
         Schema::dropIfExists('articles');
     }
 };

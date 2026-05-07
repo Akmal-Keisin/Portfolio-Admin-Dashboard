@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import StarterKit from '@tiptap/starter-kit';
+import type { JSONContent } from '@tiptap/vue-3';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import { cn } from '@/lib/utils'; // Assuming this resolves your tailwind-merge/clsx
 
 const emit = defineEmits(['update:content']);
+const props = defineProps<{
+    content: JSONContent;
+}>();
 
 const editor = useEditor({
     extensions: [StarterKit],
@@ -31,7 +35,9 @@ const editor = useEditor({
     onUpdate: (props) => {
         emit('update:content', props.editor.getJSON());
     },
-    content: `
+    content: props.content
+        ? props.content
+        : `
     <h2>Hi there,</h2>
     <p>this is a basic <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:</p>
     <ul>

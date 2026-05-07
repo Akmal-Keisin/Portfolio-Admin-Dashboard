@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Article;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Article\ArticleCollection;
 use App\Http\Resources\Category\CategoryCollection;
 use App\Http\Resources\Tag\TagCollection;
 use App\Models\Article;
@@ -14,7 +15,14 @@ class ViewArticleController extends Controller
 {
     public function index()
     {
-        return Inertia::render('admin/article/Index');
+        $articles = Article::query()
+            ->with(['author', 'category'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return Inertia::render('admin/article/Index', [
+            'articles' => new ArticleCollection($articles),
+        ]);
     }
 
     public function create()
@@ -30,8 +38,16 @@ class ViewArticleController extends Controller
 
     public function edit(Article $article)
     {
+        // Eager load the tags relationship to be passed to the view
+        $article->load('tags');
+
+        $categories = new CategoryCollection(Category::all());
+        $tags = new TagCollection(Tag::all());
+
         return Inertia::render('admin/article/Edit', [
-            'article' => $article
+            'article' => $article,
+            'categories' => $categories,
+            'tags' => $tags,
         ]);
     }
 }
