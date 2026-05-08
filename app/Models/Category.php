@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Category extends Model
 {
-    protected $fillable = ['name', 'description', 'article_count'];
+    protected $fillable = ['name', 'slug', 'description', 'article_count'];
 
     protected $casts = [
         'name' => 'string',
@@ -15,4 +17,12 @@ class Category extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
+
+    /**
+     * Get the articles for the category.
+     */
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
+    }
 }

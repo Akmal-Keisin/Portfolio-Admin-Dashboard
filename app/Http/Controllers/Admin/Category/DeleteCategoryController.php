@@ -13,7 +13,12 @@ class DeleteCategoryController extends Controller
      */
     public function __invoke(Category $category)
     {
-        dd($category);
+        if ($category->articles()->exists()) {
+            return back()->with([
+                'error' => 'Cannot delete category because it has associated articles.'
+            ]);
+        }
+
         $category->delete();
 
         return to_route('category.index')->with([

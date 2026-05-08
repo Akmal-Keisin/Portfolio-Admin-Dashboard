@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import {
     EllipsisVertical,
     FilePlusIcon,
@@ -60,9 +60,17 @@ const pendingDelete = ref<Tag | null>(null);
 
 // Functions
 function confirmDelete() {
+    console.log(pendingDelete.value);
+
     if (!pendingDelete.value) {
         return;
     }
+
+    router.delete(tagRoute.destroy(pendingDelete.value.id), {
+        onFinish: () => {
+            pendingDelete.value = null;
+        },
+    });
 }
 </script>
 
@@ -70,10 +78,7 @@ function confirmDelete() {
     <Head title="Tag" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <!-- Delete confirmation dialog — lives OUTSIDE the table, controlled by ref -->
-        <AlertDialog
-            :open="!!pendingDelete"
-            @update:open="pendingDelete = null"
-        >
+        <AlertDialog :open="!!pendingDelete">
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle
@@ -137,7 +142,7 @@ function confirmDelete() {
                 <TableBody class="**:data-[slot=table-cell]:first:w-8">
                     <TableRow v-for="(tag, index) in tags.data" :key="tag.id">
                         <TableCell class="font-medium">{{
-                            index + 1
+                            (tags.meta.from ?? 0) + index
                         }}</TableCell>
                         <TableCell>{{ tag.name }}</TableCell>
                         <TableCell>{{ tag.articleCount }}</TableCell>

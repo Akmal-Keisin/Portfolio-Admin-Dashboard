@@ -81,10 +81,7 @@ function confirmDelete() {
     <Head title="Article" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <!-- Delete confirmation dialog -->
-        <AlertDialog
-            :open="!!pendingDelete"
-            @update:open="pendingDelete = null"
-        >
+        <AlertDialog :open="!!pendingDelete">
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle
@@ -183,7 +180,7 @@ function confirmDelete() {
                                             Edit
                                         </Link>
                                     </DropdownMenuItem>
-                                    
+
                                     <DropdownMenuItem
                                         class="text-destructive focus:text-destructive"
                                         @click="pendingDelete = article"

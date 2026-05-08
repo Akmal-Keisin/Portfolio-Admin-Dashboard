@@ -81,10 +81,7 @@ function confirmDelete() {
     <Head title="Category" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <!-- Delete confirmation dialog — lives OUTSIDE the table, controlled by ref -->
-        <AlertDialog
-            :open="!!pendingDelete"
-            @update:open="pendingDelete = null"
-        >
+        <AlertDialog :open="!!pendingDelete">
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle
