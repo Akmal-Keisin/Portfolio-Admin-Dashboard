@@ -75,7 +75,7 @@ class Article extends Model
     protected function casts(): array
     {
         return [
-            'content'      => 'array',
+            'content' => 'array',
             'published_at' => 'datetime',
         ];
     }

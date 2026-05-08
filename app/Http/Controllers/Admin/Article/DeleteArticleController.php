@@ -16,7 +16,7 @@ class DeleteArticleController extends Controller
         $article->delete();
 
         return to_route('article.index')->with([
-            'success' => 'Article deleted successfully'
+            'success' => 'Article deleted successfully',
         ]);
     }
 }

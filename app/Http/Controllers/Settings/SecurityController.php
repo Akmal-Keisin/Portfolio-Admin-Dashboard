@@ -11,7 +11,6 @@ use Inertia\Response;
 
 class SecurityController extends Controller
 {
-
     /**
      * Show the user's security settings page.
      */

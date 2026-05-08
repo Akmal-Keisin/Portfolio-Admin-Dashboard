@@ -50,6 +50,7 @@ A comprehensive admin dashboard for managing portfolio content, built with Larav
 - **Controller Organization:** Controllers are located in `app/Http/Controllers/Admin/`. They are grouped by resource subdirectories.
 - **Models:** Uses modern Laravel features like Model Attributes (e.g., `#[Fillable]`).
 - **Resources:** API resources are used for consistent data transformation to the frontend (`app/Http/Resources/`).
+- Always looks for the database/database_structure.md for any action that needed query or any interaction with database to get a clear view of how the database and tables are structured 
 
 ### Frontend
 - **Components:** UI components follow the `shadcn-vue` pattern and are located in `resources/js/components/ui`.

@@ -19,7 +19,7 @@ class UpdateCategoryController extends Controller
         $category->save();
 
         return to_route('category.index')->with([
-            'success' => 'New category updated successfully'
+            'success' => 'New category updated successfully',
         ]);
     }
 }

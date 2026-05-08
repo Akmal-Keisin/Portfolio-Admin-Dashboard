@@ -16,7 +16,7 @@ class ViewCategoryController extends Controller
             ->paginate(20);
 
         return Inertia::render('admin/category/Index', [
-            'categories' => CategoryResource::collection($categories)
+            'categories' => CategoryResource::collection($categories),
         ]);
     }
 
@@ -28,7 +28,7 @@ class ViewCategoryController extends Controller
     public function edit(Category $category)
     {
         return Inertia::render('admin/category/Edit', [
-            'category' => new CategoryResource($category)
+            'category' => new CategoryResource($category),
         ]);
     }
 }

@@ -28,9 +28,9 @@ class UpdateTagRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('tags')->ignore($this->id)
+                Rule::unique('tags')->ignore($this->id),
             ],
-            'description' => 'nullable|string|max:255'
+            'description' => 'nullable|string|max:255',
         ];
     }
 }

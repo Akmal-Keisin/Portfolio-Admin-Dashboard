@@ -19,7 +19,7 @@ class UpdateTagController extends Controller
         $tag->save();
 
         return to_route('tag.index')->with([
-            'success' => 'New tag updated successfully'
+            'success' => 'New tag updated successfully',
         ]);
     }
 }

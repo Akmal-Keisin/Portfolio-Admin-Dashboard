@@ -15,14 +15,14 @@ class StoreTagController extends Controller
     {
         $data = [
             'name' => trim($request->name),
-            'description' => trim($request->description)
+            'description' => trim($request->description),
         ];
 
         $tag = new Tag($data);
         $tag->save();
 
         return to_route('tag.index')->with([
-            'success' => 'New tag created successfully'
+            'success' => 'New tag created successfully',
         ]);
     }
 }

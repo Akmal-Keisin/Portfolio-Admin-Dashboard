@@ -16,7 +16,7 @@ class ViewTagController extends Controller
             ->paginate(20);
 
         return Inertia::render('admin/tag/Index', [
-            'tags' => TagResource::collection($tags)
+            'tags' => TagResource::collection($tags),
         ]);
     }
 
@@ -28,7 +28,7 @@ class ViewTagController extends Controller
     public function edit(Tag $tag)
     {
         return Inertia::render('admin/tag/Edit', [
-            'tag' => new TagResource($tag)
+            'tag' => new TagResource($tag),
         ]);
     }
 }

@@ -129,7 +129,7 @@ return [
     'default_super_admin' => [
         'name' => env('DEFAULT_SUPERADMIN_NAME', 'Super Admin'),
         'username' => env('DEFAULT_SUPERADMIN_USERNAME', 'superadmin'),
-        'password' => env('DEFAULT_SUPERADMIN_PASSWORD', 'password')
-    ]
+        'password' => env('DEFAULT_SUPERADMIN_PASSWORD', 'password'),
+    ],
 
 ];

@@ -1,7 +1,6 @@
-import type { Article } from '@/types/model/article';
+import type { JSONContent } from '@tiptap/vue-3';
 import type { Category } from '@/types/model/category';
 import type { Tag } from '@/types/model/tag';
-import type { JSONContent } from '@tiptap/vue-3';
 
 export interface ArticleForm {
     title: string;
@@ -16,4 +15,3 @@ export interface ArticleFormErrors {
     category?: string;
     tags?: string;
 }
-

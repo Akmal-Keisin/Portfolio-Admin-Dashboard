@@ -26,7 +26,7 @@ class UpdateArticleController extends Controller
                 'category_id' => $validated['category'],
             ]);
 
-            if (!empty($validated['tags'])) {
+            if (! empty($validated['tags'])) {
                 $article->tags()->sync($validated['tags']);
             } else {
                 // If tags are empty, detach all
@@ -51,7 +51,7 @@ class UpdateArticleController extends Controller
                 if (($node['type'] ?? '') === 'paragraph' && isset($node['content'])) {
                     foreach ($node['content'] as $textNode) {
                         if (($textNode['type'] ?? '') === 'text') {
-                            $text .= $textNode['text'] . ' ';
+                            $text .= $textNode['text'].' ';
                         }
                     }
 

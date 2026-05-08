@@ -14,7 +14,7 @@ class Tag extends Model
         'description' => 'string',
         'article_count' => 'integer',
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     /**

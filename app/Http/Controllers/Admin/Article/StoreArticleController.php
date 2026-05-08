@@ -22,14 +22,14 @@ class StoreArticleController extends Controller
         DB::transaction(function () use ($validated) {
 
             $article = Article::create([
-                'title'       => $validated['title'],
-                'excerpt'     => $this->generateExcerptFromJSON($validated['content']),
-                'content'     => $validated['content'],
+                'title' => $validated['title'],
+                'excerpt' => $this->generateExcerptFromJSON($validated['content']),
+                'content' => $validated['content'],
                 'category_id' => $validated['category'],
-                'author_id'   => Auth::id(),
+                'author_id' => Auth::id(),
             ]);
 
-            if (!empty($validated['tags'])) {
+            if (! empty($validated['tags'])) {
                 $article->tags()->sync($validated['tags']);
             }
         });
@@ -37,6 +37,7 @@ class StoreArticleController extends Controller
         return redirect()->route('article.index')
             ->with('success', 'Article created successfully.');
     }
+
     /**
      * Recursively search the TipTap JSON tree to find the first block of text.
      */
@@ -50,7 +51,7 @@ class StoreArticleController extends Controller
                 if (($node['type'] ?? '') === 'paragraph' && isset($node['content'])) {
                     foreach ($node['content'] as $textNode) {
                         if (($textNode['type'] ?? '') === 'text') {
-                            $text .= $textNode['text'] . ' ';
+                            $text .= $textNode['text'].' ';
                         }
                     }
 

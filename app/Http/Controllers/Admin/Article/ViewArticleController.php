@@ -32,7 +32,7 @@ class ViewArticleController extends Controller
 
         return Inertia::render('admin/article/Create', [
             'categories' => $categories,
-            'tags' => $tags
+            'tags' => $tags,
         ]);
     }
 

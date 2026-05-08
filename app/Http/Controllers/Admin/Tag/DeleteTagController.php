@@ -16,7 +16,7 @@ class DeleteTagController extends Controller
         $tag->delete();
 
         return to_route('tag.index')->with([
-            'success' => 'Tag deleted successfully'
+            'success' => 'Tag deleted successfully',
         ]);
     }
 }

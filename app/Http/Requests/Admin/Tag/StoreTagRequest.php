@@ -24,7 +24,7 @@ class StoreTagRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255|unique:tags,name',
-            'description' => 'nullable|string|max:255'
+            'description' => 'nullable|string|max:255',
         ];
     }
 }

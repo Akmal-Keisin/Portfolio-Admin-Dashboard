@@ -19,8 +19,8 @@ class TagResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'articleCount' => $this->article_count,
-            'createdAt' => $this->created_at ? $this->created_at->format(("l, F j, Y")) : '-',
-            'updatedAt' => $this->updated_at ? $this->updated_at->format(("l, F j, Y")) : '-'
+            'createdAt' => $this->created_at ? $this->created_at->format(('l, F j, Y')) : '-',
+            'updatedAt' => $this->updated_at ? $this->updated_at->format(('l, F j, Y')) : '-',
         ];
     }
 }

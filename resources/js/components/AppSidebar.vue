@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { File, LayoutGrid, Milestone, Tag } from 'lucide-vue-next';
+import { File, LayoutGrid, Layers, Milestone, Tag } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,7 +17,9 @@ import {
 import { dashboard } from '@/routes';
 import article from '@/routes/article';
 import category from '@/routes/category';
+import project from '@/routes/project';
 import tag from '@/routes/tag';
+import techStack from '@/routes/tech-stack';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -37,8 +39,18 @@ const mainNavItems: NavItem[] = [
         icon: Tag,
     },
     {
+        title: 'Tech Stack',
+        href: techStack.index().url,
+        icon: Layers,
+    },
+    {
         title: 'Article',
         href: article.index(),
+        icon: File,
+    },
+    {
+        title: 'Project',
+        href: project.index(),
         icon: File,
     },
 ];

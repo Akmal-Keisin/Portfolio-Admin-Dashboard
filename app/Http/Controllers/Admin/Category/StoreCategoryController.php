@@ -15,14 +15,14 @@ class StoreCategoryController extends Controller
     {
         $data = [
             'name' => trim($request->name),
-            'description' => trim($request->description)
+            'description' => trim($request->description),
         ];
 
         $category = new Category($data);
         $category->save();
 
         return to_route('category.index')->with([
-            'success' => 'New category created successfully'
+            'success' => 'New category created successfully',
         ]);
     }
 }
