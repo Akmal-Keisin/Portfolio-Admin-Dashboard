@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,
             TechStackSeeder::class,
             ArticleSeeder::class,
+            ProjectSeeder::class,
         ]);
     }
 }

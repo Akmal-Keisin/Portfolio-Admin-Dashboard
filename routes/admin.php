@@ -21,10 +21,23 @@ use App\Http\Controllers\Admin\Project\DeleteProjectController;
 use App\Http\Controllers\Admin\Project\StoreProjectController;
 use App\Http\Controllers\Admin\Project\UpdateProjectController;
 use App\Http\Controllers\Admin\Project\ViewProjectController;
+use App\Http\Controllers\Admin\Message\DeleteMessageController;
+use App\Http\Controllers\Admin\Message\UpdateMessageStatusController;
+use App\Http\Controllers\Admin\Message\ViewMessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:admin'])->group(function () {
     Route::get('dashboard', [ViewDashboardController::class, 'index'])->name('dashboard');
+
+    // Message
+    Route::prefix('messages')->name('messages.')->group(function () {
+        Route::get('/', [ViewMessageController::class, 'index'])->name('index');
+        Route::get('/{message}', [ViewMessageController::class, 'show'])->name('show');
+        Route::patch('/{message}/toggle-read', [UpdateMessageStatusController::class, 'toggleRead'])->name('toggle-read');
+        Route::patch('/{message}/toggle-important', [UpdateMessageStatusController::class, 'toggleImportant'])->name('toggle-important');
+        Route::patch('/{message}/toggle-archive', [UpdateMessageStatusController::class, 'toggleArchive'])->name('toggle-archive');
+        Route::delete('/{message}', DeleteMessageController::class)->name('destroy');
+    });
 
     // Project
     Route::prefix('project')->name('project.')->group(function () {

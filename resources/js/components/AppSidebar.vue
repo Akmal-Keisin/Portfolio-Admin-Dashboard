@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { File, LayoutGrid, Layers, Milestone, Tag } from 'lucide-vue-next';
+import { File, LayoutGrid, Layers, Milestone, Tag, Mail } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,6 +17,7 @@ import {
 import { dashboard } from '@/routes';
 import article from '@/routes/article';
 import category from '@/routes/category';
+import messages from '@/routes/messages';
 import project from '@/routes/project';
 import tag from '@/routes/tag';
 import techStack from '@/routes/tech-stack';
@@ -27,6 +28,11 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Messages',
+        href: messages.index().url,
+        icon: Mail,
     },
     {
         title: 'Category',
