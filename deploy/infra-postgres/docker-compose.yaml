@@ -1,0 +1,47 @@
+# Deploy this ONCE, independently of any app project.
+# All app stacks (this Laravel project and future ones) connect to it
+# over the external `db-net` network — none of them run their own Postgres.
+#
+# One-time setup (from repo root):
+#   docker network create db-net
+#   docker compose -f deploy/infra-postgres/docker-compose.yml \
+#       --env-file deploy/infra-postgres/.env up -d
+
+name: shared-postgres
+
+services:
+    postgres:
+        image: postgres:16-alpine
+        container_name: shared_postgres
+        restart: unless-stopped
+        environment:
+            # This is the Postgres SUPERUSER, used only to provision per-project
+            # roles/databases (see scripts/create-db.sh). App containers never use
+            # this account directly — each gets its own role + database.
+            POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?set POSTGRES_SUPERUSER_PASSWORD}
+            POSTGRES_DB: postgres
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - db-net
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_SUPERUSER:-postgres}']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        # No host port published by default — everything talks to it over db-net.
+        # Uncomment only temporarily for local maintenance (e.g. pgAdmin, backups):
+        # ports:
+        #   - "127.0.0.1:5432:5432"
+
+networks:
+    db-net:
+        external: true
+        # Created once, outside this file:  docker network create db-net
+        # Every project's app container joins this same network to reach Postgres.
+        name: db-net
+
+volumes:
+    postgres_data:
+        name: shared_postgres_data

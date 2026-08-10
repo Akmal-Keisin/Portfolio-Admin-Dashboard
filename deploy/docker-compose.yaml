@@ -1,0 +1,83 @@
+# Assumes the shared Postgres stack (deploy/infra-postgres/docker-compose.yml)
+# is already deployed, `db-net` exists, and this project's role/database were
+# provisioned with deploy/infra-postgres/scripts/create-db.sh.
+#
+# Run from the repo root:
+#   docker compose -f deploy/docker-compose.yml up -d --build
+# or from inside deploy/:
+#   docker compose up -d --build
+
+name: portfolio-admin
+
+services:
+    app:
+        build:
+            context: .. # repo root — where composer.json / package.json live
+            dockerfile: deploy/Dockerfile
+        image: portfolio-admin-app:latest
+        container_name: portfolio-admin-app
+        restart: unless-stopped
+        env_file:
+            - ../.env # Laravel's own .env, still at repo root
+        environment:
+            DB_CONNECTION: pgsql
+            DB_HOST: shared_postgres # container name on the shared db-net
+            DB_PORT: 5432
+        volumes:
+            - storage_data:/app/storage
+        networks:
+            - proxy-net # shared with the external nginx reverse-proxy container
+            - db-net # shared with the shared_postgres container
+        # No `depends_on: postgres` — Postgres now lives in a different compose
+        # project, so compose can't sequence startup for us. entrypoint.sh
+        # instead retries the DB connection before running migrations.
+
+    # --- Optional: queue worker, same image, different process -------------
+    # queue:
+    #   image: portfolio-admin-app:latest
+    #   container_name: portfolio-admin_queue
+    #   restart: unless-stopped
+    #   env_file: [../.env]
+    #   environment:
+    #     DB_CONNECTION: pgsql
+    #     DB_HOST: shared_postgres
+    #     DB_DATABASE: ${DB_DATABASE:-portfolio-admin}
+    #     DB_USERNAME: ${DB_USERNAME:-portfolio-admin}
+    #     DB_PASSWORD: ${DB_PASSWORD}
+    #   command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    #   volumes:
+    #     - storage_data:/app/storage
+    #   networks: [db-net]
+    #   entrypoint: []   # skip migrate/cache steps from the main entrypoint
+
+    # --- Optional: scheduler (cron replacement) -----------------------------
+    # scheduler:
+    #   image: portfolio-admin-app:latest
+    #   container_name: portfolio-admin_scheduler
+    #   restart: unless-stopped
+    #   env_file: [../.env]
+    #   environment:
+    #     DB_CONNECTION: pgsql
+    #     DB_HOST: shared_postgres
+    #     DB_DATABASE: ${DB_DATABASE:-portfolio-admin}
+    #     DB_USERNAME: ${DB_USERNAME:-portfolio-admin}
+    #     DB_PASSWORD: ${DB_PASSWORD}
+    #   entrypoint: ["sh", "-c"]
+    #   command: ["while true; do php artisan schedule:run --no-interaction; sleep 60; done"]
+    #   volumes:
+    #     - storage_data:/app/storage
+    #   networks: [db-net]
+
+networks:
+    proxy-net:
+        external: true
+        # docker network create proxy-net   (shared with nginx reverse proxy)
+        name: proxy-net
+    db-net:
+        external: true
+        # docker network create db-net      (shared with shared_postgres)
+        name: db-net
+
+volumes:
+    storage_data:
+        name: portfolio-admin_storage_data
