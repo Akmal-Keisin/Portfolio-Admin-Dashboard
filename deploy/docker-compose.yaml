@@ -24,7 +24,7 @@ services:
             DB_HOST: shared_postgres # container name on the shared db-net
             DB_PORT: 5432
         volumes:
-            - storage_data:/app/storage
+            - portfolio_admin_storage_data:/app/storage
         networks:
             - proxy-net # shared with the external nginx reverse-proxy container
             - db-net # shared with the shared_postgres container
@@ -80,4 +80,4 @@ networks:
 
 volumes:
     storage_data:
-        name: portfolio-admin_storage_data
+        name: portfolio_admin_storage_data

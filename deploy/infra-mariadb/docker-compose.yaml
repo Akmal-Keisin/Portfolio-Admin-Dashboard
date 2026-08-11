@@ -1,0 +1,44 @@
+# Deploy this ONCE, independently of any app project.
+# All app stacks (this Laravel project and future ones) connect to it
+# over the external `db-net` network — none of them run their own MariaDB.
+#
+# One-time setup (from repo root):
+#   docker network create db-net
+#   docker compose -f deploy/infra-mariadb/docker-compose.yml \
+#       --env-file deploy/infra-mariadb/.env up -d
+name: shared-mariadb
+services:
+    mariadb:
+        image: mariadb:11
+        container_name: shared_mariadb
+        restart: unless-stopped
+        environment:
+            # This is the MariaDB SUPERUSER (root), used only to provision
+            # per-project users/databases (see scripts/create-db.sh). App containers
+            # never use this account directly — each gets its own user + database.
+            MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD}
+            # Prevents the image from auto-creating an app-specific DB/user on
+            # first boot — provisioning is handled per-project via create-db.sh.
+            MARIADB_DATABASE: ''
+        volumes:
+            - mariadb_data:/var/lib/mysql
+        networks:
+            - db-net
+        healthcheck:
+            test: ['CMD-SHELL', 'healthcheck.sh --connect --innodb_initialized']
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        # No host port published by default — everything talks to it over db-net.
+        # Uncomment only temporarily for local maintenance (e.g. mysqldump, GUI tools):
+        # ports:
+        #   - "127.0.0.1:3306:3306"
+networks:
+    db-net:
+        external: true
+        # Created once, outside this file:  docker network create db-net
+        # Every project's app container joins this same network to reach MariaDB.
+        name: db-net
+volumes:
+    mariadb_data:
+        name: shared_mariadb_data
