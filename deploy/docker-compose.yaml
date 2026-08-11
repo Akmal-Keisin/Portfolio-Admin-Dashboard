@@ -79,5 +79,5 @@ networks:
         name: db-net
 
 volumes:
-    storage_data:
+    portfolio_admin_storage_data:
         name: portfolio_admin_storage_data
