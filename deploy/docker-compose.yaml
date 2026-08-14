@@ -19,6 +19,12 @@ services:
         networks:
             - traefik-proxy
             - db-net
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.http.routers.portfolio.rule=Host(`portfolio-admin.akmalkeisin.com`)'
+            - 'traefik.http.routers.portfolio.entrypoints=websecure'
+            - 'traefik.http.routers.portfolio.tls=true'
+            - 'traefik.http.routers.portfolio.tls.certresolver=le'
 
     # --- Optional: queue worker, same image, different process -------------
     # queue:
@@ -60,7 +66,7 @@ networks:
     traefik-proxy:
         external: true
         name: traefik-proxy
-    db-net:
+    mariadb-net:
         external: true
         name: db-net
 
