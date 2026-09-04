@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import { AppLogoIcon } from '@/components/layout';
 import { home } from '@/routes';
 
 const page = usePage();

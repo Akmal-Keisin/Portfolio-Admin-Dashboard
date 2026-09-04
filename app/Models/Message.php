@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Model;
     'status',
     'is_read',
     'is_important',
+    'ip_address',
+    'user_agent',
+    'honeypot',
 ])]
 class Message extends Model
 {

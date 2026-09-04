@@ -43,4 +43,5 @@ Route::prefix('tech-stacks')->group(function () {
     Route::get('/{tech_stack}', [TechStackController::class, 'show']);
 });
 
-Route::post('/messages', [\App\Http\Controllers\Api\MessageController::class, 'store']);
+Route::post('/messages', [\App\Http\Controllers\Api\MessageController::class, 'store'])
+    ->middleware('throttle:message_submit');

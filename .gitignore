@@ -30,4 +30,12 @@ yarn-error.log
 **/caddy
 frankenphp
 frankenphp-worker.php
+
+# Agents
 graphify-out
+AGENTS.md
+GEMINI.md
+.opencode
+.agents
+.claude
+skills-lock.json

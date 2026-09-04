@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
+import { PlaceholderPattern } from '@/components/shared';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 

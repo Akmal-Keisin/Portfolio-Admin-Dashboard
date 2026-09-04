@@ -54,7 +54,7 @@ COPY --from=node_source /usr/local/bin /usr/local/bin
 COPY --from=node_source /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # Install & build frontend
-RUN npm install && npm run build
+RUN npm i && npm run build
 
 # Stage 3: Production environmen
 FROM php:8.5-fpm AS production

@@ -3,7 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import type { JSONContent } from '@tiptap/vue-3';
 import { ArrowLeft, CheckCircle, Loader, TriangleAlert } from 'lucide-vue-next';
 import { ref } from 'vue';
-import TipTap from '@/components/TipTap/TipTap.vue';
+import { TipTap } from '@/components/article';
 import { Button } from '@/components/ui/button';
 import {
     Card,
