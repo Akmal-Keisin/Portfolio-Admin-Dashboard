@@ -15,6 +15,6 @@ class DeleteMessageController extends Controller
     {
         $message->delete();
 
-        return to_route('admin.messages.index')->with('success', 'Message deleted successfully.');
+        return to_route('messages.index')->with('success', 'Message deleted successfully.');
     }
 }

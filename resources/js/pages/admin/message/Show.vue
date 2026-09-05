@@ -10,7 +10,7 @@ import {
     Trash2Icon,
     UserIcon,
     MailCheckIcon,
-    CalendarIcon
+    CalendarIcon,
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import {
@@ -66,15 +66,27 @@ function confirmDelete() {
 }
 
 function toggleRead() {
-    router.patch(messageRoute.toggleRead(props.message.id), {}, { preserveScroll: true });
+    router.patch(
+        messageRoute.toggleRead(props.message.id),
+        {},
+        { preserveScroll: true },
+    );
 }
 
 function toggleImportant() {
-    router.patch(messageRoute.toggleImportant(props.message.id), {}, { preserveScroll: true });
+    router.patch(
+        messageRoute.toggleImportant(props.message.id),
+        {},
+        { preserveScroll: true },
+    );
 }
 
 function toggleArchive() {
-    router.patch(messageRoute.toggleArchive(props.message.id), {}, { preserveScroll: true });
+    router.patch(
+        messageRoute.toggleArchive(props.message.id),
+        {},
+        { preserveScroll: true },
+    );
 }
 </script>
 
@@ -84,14 +96,23 @@ function toggleArchive() {
         <AlertDialog :open="showDeleteDialog">
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle
+                        >Are you absolutely sure?</AlertDialogTitle
+                    >
                     <AlertDialogDescription>
-                        This will permanently delete the message from <strong>{{ message.name }}</strong>. This action cannot be undone.
+                        This will permanently delete the message from
+                        <strong>{{ message.name }}</strong
+                        >. This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel @click="showDeleteDialog = false">Cancel</AlertDialogCancel>
-                    <AlertDialogAction @click="confirmDelete" class="bg-destructive hover:bg-destructive/70">
+                    <AlertDialogCancel @click="showDeleteDialog = false"
+                        >Cancel</AlertDialogCancel
+                    >
+                    <AlertDialogAction
+                        @click="confirmDelete"
+                        class="bg-destructive hover:bg-destructive/70"
+                    >
                         <Trash2Icon class="mr-2 size-4" />
                         Delete
                     </AlertDialogAction>
@@ -99,7 +120,7 @@ function toggleArchive() {
             </AlertDialogContent>
         </AlertDialog>
 
-        <div class="max-w-4xl mx-auto space-y-4">
+        <div class="mx-auto w-full space-y-4">
             <div class="flex items-center justify-between">
                 <Button as-child variant="ghost" size="sm">
                     <Link :href="messageRoute.index()">
@@ -109,24 +130,50 @@ function toggleArchive() {
                 </Button>
 
                 <div class="flex items-center gap-2">
-                    <Button variant="outline" size="sm" @click="toggleImportant">
-                        <StarIcon 
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        @click="toggleImportant"
+                    >
+                        <StarIcon
                             :class="[
                                 'mr-2 size-4',
-                                message.isImportant ? 'fill-yellow-500 text-yellow-500' : ''
-                            ]" 
+                                message.isImportant
+                                    ? 'fill-yellow-500 text-yellow-500'
+                                    : '',
+                            ]"
                         />
-                        {{ message.isImportant ? 'Important' : 'Mark Important' }}
+                        {{
+                            message.isImportant ? 'Important' : 'Mark Important'
+                        }}
                     </Button>
                     <Button variant="outline" size="sm" @click="toggleRead">
-                        <component :is="message.isRead ? MailIcon : MailOpenIcon" class="mr-2 size-4" />
+                        <component
+                            :is="message.isRead ? MailIcon : MailOpenIcon"
+                            class="mr-2 size-4"
+                        />
                         {{ message.isRead ? 'Mark Unread' : 'Mark Read' }}
                     </Button>
                     <Button variant="outline" size="sm" @click="toggleArchive">
-                        <component :is="message.status === 'inbox' ? ArchiveIcon : ArchiveRestoreIcon" class="mr-2 size-4" />
-                        {{ message.status === 'inbox' ? 'Archive' : 'Move to Inbox' }}
+                        <component
+                            :is="
+                                message.status === 'inbox'
+                                    ? ArchiveIcon
+                                    : ArchiveRestoreIcon
+                            "
+                            class="mr-2 size-4"
+                        />
+                        {{
+                            message.status === 'inbox'
+                                ? 'Archive'
+                                : 'Move to Inbox'
+                        }}
                     </Button>
-                    <Button variant="destructive" size="sm" @click="showDeleteDialog = true">
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        @click="showDeleteDialog = true"
+                    >
                         <Trash2Icon class="mr-2 size-4" />
                         Delete
                     </Button>
@@ -137,8 +184,12 @@ function toggleArchive() {
                 <CardHeader class="border-b">
                     <div class="flex items-start justify-between">
                         <div class="space-y-1">
-                            <CardTitle class="text-2xl">{{ message.subject }}</CardTitle>
-                            <div class="flex items-center gap-4 text-sm text-muted-foreground">
+                            <CardTitle class="text-2xl">{{
+                                message.subject
+                            }}</CardTitle>
+                            <div
+                                class="flex items-center gap-4 text-sm text-muted-foreground"
+                            >
                                 <div class="flex items-center gap-1">
                                     <UserIcon class="size-4" />
                                     <span>{{ message.name }}</span>
@@ -149,25 +200,41 @@ function toggleArchive() {
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <CalendarIcon class="size-4" />
-                                    <span>{{ message.createdAt }} ({{ message.diffForHumans }})</span>
+                                    <span
+                                        >{{ message.createdAt }} ({{
+                                            message.diffForHumans
+                                        }})</span
+                                    >
                                 </div>
                             </div>
                         </div>
-                        <Badge :variant="message.status === 'archived' ? 'outline' : 'default'" class="capitalize">
+                        <Badge
+                            :variant="
+                                message.status === 'archived'
+                                    ? 'outline'
+                                    : 'default'
+                            "
+                            class="capitalize"
+                        >
                             {{ message.status }}
                         </Badge>
                     </div>
                 </CardHeader>
                 <CardContent class="py-8">
-                    <div class="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap leading-relaxed text-base">
+                    <div
+                        class="prose prose-sm max-w-none text-base leading-relaxed whitespace-pre-wrap dark:prose-invert"
+                    >
                         {{ message.message }}
                     </div>
                 </CardContent>
-                <CardFooter class="border-t bg-muted/20 py-4 flex justify-between items-center text-xs text-muted-foreground italic">
-                    <div>
-                        Last updated: {{ message.updatedAt }}
-                    </div>
-                    <div v-if="message.isImportant" class="flex items-center gap-1 text-yellow-600 dark:text-yellow-500 font-medium">
+                <CardFooter
+                    class="flex items-center justify-between border-t bg-muted/20 py-4 text-xs text-muted-foreground italic"
+                >
+                    <div>Last updated: {{ message.updatedAt }}</div>
+                    <div
+                        v-if="message.isImportant"
+                        class="flex items-center gap-1 font-medium text-yellow-600 dark:text-yellow-500"
+                    >
                         <StarIcon class="size-3 fill-current" />
                         Marked as Important
                     </div>

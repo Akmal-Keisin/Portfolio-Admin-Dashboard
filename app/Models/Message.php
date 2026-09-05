@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
     'is_important',
     'ip_address',
     'user_agent',
-    'honeypot',
 ])]
 class Message extends Model
 {
