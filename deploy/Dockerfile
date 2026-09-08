@@ -1,10 +1,16 @@
+# Copy the Bun binary from the official image
+FROM oven/bun:1.4 AS bun_source
 
-FROM node:24-bookworm-slim AS node_source
+# Stage 1: Build environment
+# -----------------------------------------------------------
+# Installs PHP extensions, Composer dependencies, and builds the frontend assets.
+# This stage runs ONCE and feeds both final images (web + php-fpm) via COPY --from=builder.
+# The frontend build needs PHP because @laravel/vite-plugin-wayfinder shells out to
+# `php artisan wayfinder:generate`, which requires a bootable Laravel app.
+# -----------------------------------------------------------
+FROM php:8.5-fpm AS builder
 
-# Stage 1: Install PHP Dependencies
-FROM php:8.5-cli AS builder
-
-# Install system dependencies and PHP extensions for Laravel with PostgreSQL support.
+# Install system dependencies and PHP extensions for Laravel with MySQL/PostgreSQL support.
 # Dependencies in this stage are only required for building the final image.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -17,12 +23,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     libzip-dev \
     && docker-php-ext-install -j$(nproc) \
+    pdo_mysql \
     pdo_pgsql \
     pgsql \
     intl \
     zip \
     bcmath \
     soap \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Set the working directory inside the container
@@ -49,15 +58,35 @@ COPY . /var/www
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
 
-# Copy the Node binaries and NPM from the official image
-COPY --from=node_source /usr/local/bin /usr/local/bin
-COPY --from=node_source /usr/local/lib/node_modules /usr/local/lib/node_modules
+# Copy the Bun binary and install/build frontend assets
+COPY --from=bun_source /usr/local/bin/bun /usr/local/bin/bun
+RUN bun install --frozen-lockfile && bun run build
 
-# Install & build frontend
-RUN npm i && npm run build
+# Stage 2: Nginx production image
+FROM nginx:alpine AS web
 
-# Stage 3: Production environmen
-FROM php:8.5-fpm AS production
+# Copy custom Nginx configuration
+# -----------------------------------------------------------
+# Replace the default Nginx configuration with our custom one
+# that is optimized for serving a Laravel application.
+# -----------------------------------------------------------
+COPY ./deploy/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# Copy Laravel's public assets from the builder stage
+# -----------------------------------------------------------
+# We only need the 'public' directory from our Laravel app.
+# -----------------------------------------------------------
+COPY --from=builder /var/www/public /var/www/public
+
+# Set the working directory to the public folder
+WORKDIR /var/www/public
+
+# Expose port 80 and start Nginx
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+# Stage 3: PHP-FPM production image
+FROM php:8.5-fpm AS php-fpm
 
 # Install only runtime libraries needed in production
 # libfcgi-bin and procps are required for the php-fpm-healthcheck script
@@ -75,13 +104,13 @@ RUN curl -o /usr/local/bin/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck
 
 # Copy the initialization script
-COPY ./deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY ./deploy/php-fpm/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Copy the initial storage structure
 COPY ./storage /var/www/storage-init
 
-# Copy PHP extensions and libraries from the php builder stage
+# Copy PHP extensions and libraries from the builder stage
 COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
@@ -95,6 +124,9 @@ COPY --from=builder /usr/local/bin/docker-php-ext-* /usr/local/bin/
 # -----------------------------------------------------------
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+# Keep the image-provided FPM global config intact and add pool overrides separately
+COPY ./deploy/php-fpm/conf.d/*.conf /usr/local/etc/php-fpm.d/
+
 # Copy the application code and dependencies from the build stage
 COPY --from=builder /var/www /var/www
 
@@ -107,6 +139,38 @@ RUN chown -R www-data:www-data /var/www
 # Switch to the non-privileged user to run the application
 USER www-data
 
+# Change the default command to run the entrypoint script
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
 CMD ["php-fpm"]
+
+# Stage 4: PHP-CLI (artisan commands)
+# -----------------------------------------------------------
+# Lightweight image for one-off artisan commands:
+#   docker compose run php-cli artisan ...
+# Runs as www-data, same app/vendor as php-fpm.
+# -----------------------------------------------------------
+FROM php:8.5-cli AS php-cli
+
+# Runtime libs matching the extensions compiled in the builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    libicu-dev \
+    libzip-dev \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copy PHP extensions and libraries from the builder stage
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+
+# Copy the application code and dependencies from the build stage
+COPY --from=builder /var/www /var/www
+
+WORKDIR /var/www
+RUN chown -R www-data:www-data /var/www
+USER www-data
+
+# Default to a shell so commands can be passed
+CMD ["sh"]

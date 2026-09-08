@@ -1,75 +1,102 @@
-name: portfolio-dashobard
+name: portfolio-admin
 
 services:
-    app:
-        build:
-            context: ..
-            dockerfile: deploy/Dockerfile
-        image: portfolio-dashboard:latest
-        container_name: portfolio-dashboard
-        restart: unless-stopped
-        env_file:
-            - ../.env
-        environment:
-            DB_CONNECTION: mariadb
-            DB_HOST: shared_mariadb
-            DB_PORT: 3306
-        volumes:
-            - portfolio_admin_storage_data:/app/storage
-        networks:
-            - traefik-proxy
-            - db-net
-        labels:
-            - 'traefik.enable=true'
-            - 'traefik.http.routers.portfolio.rule=Host(`portfolio-admin.akmalkeisin.com`)'
-            - 'traefik.http.routers.portfolio.entrypoints=websecure'
-            - 'traefik.http.routers.portfolio.tls=true'
-            - 'traefik.http.routers.portfolio.tls.certresolver=le'
+  web:
+    build:
+      context: ..
+      dockerfile: ./deploy/Dockerfile
+      target: web
+    image: portfolio-admin:latest
+    container_name: portfolio-admin-web
+    restart: unless-stopped # Automatically restart unless the service is explicitly stopped
+    volumes:
+      # Mount the 'portfolio_admin_storage' volume to '/var/www/storage' inside the container.
+      # -----------------------------------------------------------
+      # This volume stores persistent data like uploaded files and cache.
+      # The ':ro' option mounts it as read-only in the 'web' service because Nginx only needs to read these files.
+      # The 'php-fpm' service mounts the same volume without ':ro' to allow write operations.
+      # -----------------------------------------------------------
+      - portfolio_admin_storage:/var/www/storage:ro
+      - portfolio_admin_public_assets:/var/www/public/build:ro
+    networks:
+      - traefik-proxy
+      - portfolio-internal
+    ports:
+      # Map port 80 inside the container to the port specified by 'NGINX_PORT' on the host machine.
+      # -----------------------------------------------------------
+      # This allows external access to the Nginx web server running inside the container.
+      # For example, if 'NGINX_PORT' is set to '8080', accessing 'http://localhost:8080' will reach the application.
+      # -----------------------------------------------------------
+      - "${NGINX_PORT:-80}:80"
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.portfolio.rule=Host(`portfolio-admin.akmalkeisin.com`)'
+      - 'traefik.http.routers.portfolio.entrypoints=websecure'
+      - 'traefik.http.routers.portfolio.tls=true'
+      - 'traefik.http.routers.portfolio.tls.certresolver=le'
+    depends_on:
+      php-fpm:
+        condition: service_healthy  # Wait for php-fpm health check
 
-    # --- Optional: queue worker, same image, different process -------------
-    # queue:
-    #   image: portfolio-dashboard:latest
-    #   container_name: portfolio-dashobard_queue
-    #   restart: unless-stopped
-    #   env_file: [../.env]
-    #   environment:
-    #     DB_CONNECTION: pgsql
-    #     DB_HOST: shared_postgres
-    #     DB_DATABASE: ${DB_DATABASE:-portfolio-dashobard}
-    #     DB_USERNAME: ${DB_USERNAME:-portfolio-dashobard}
-    #     DB_PASSWORD: ${DB_PASSWORD}
-    #   command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
-    #   volumes:
-    #     - storage_data:/app/storage
-    #   networks: [db-net]
-    #   entrypoint: []   # skip migrate/cache steps from the main entrypoint
 
-    # --- Optional: scheduler (cron replacement) -----------------------------
-    # scheduler:
-    #   image: portfolio-dashboard:latest
-    #   container_name: portfolio-dashobard_scheduler
-    #   restart: unless-stopped
-    #   env_file: [../.env]
-    #   environment:
-    #     DB_CONNECTION: pgsql
-    #     DB_HOST: shared_postgres
-    #     DB_DATABASE: ${DB_DATABASE:-portfolio-dashobard}
-    #     DB_USERNAME: ${DB_USERNAME:-portfolio-dashobard}
-    #     DB_PASSWORD: ${DB_PASSWORD}
-    #   entrypoint: ["sh", "-c"]
-    #   command: ["while true; do php artisan schedule:run --no-interaction; sleep 60; done"]
-    #   volumes:
-    #     - storage_data:/app/storage
-    #   networks: [db-net]
+  php-fpm:
+    # For the php-fpm service, we will create a custom image to install the necessary PHP extensions and setup proper permissions.
+    build:
+      context: ..
+      dockerfile: ./deploy/Dockerfile
+      target: php-fpm
+    container_name: portfolio-admin-php-fpm
+    restart: unless-stopped
+    volumes:
+      - portfolio_admin_public_assets:/var/www/public/build  # Mount built public assets to ensure the manifest.json and hashed files match between Nginx and PHP-FPM
+      - portfolio_admin_storage:/var/www/storage  # Mount the storage volume
+    env_file:
+      - ../.env
+    environment:
+      DB_CONNECTION: mariadb
+      DB_HOST: mariadb_dev
+      DB_PORT: 3306
+    networks:
+      - db-net
+      - portfolio-internal
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  php-cli:
+    build:
+      context: ..
+      dockerfile: ./deploy/Dockerfile
+      target: php-cli
+    container_name: portfolio-admin-php-cli
+    stdin_open: true
+    tty: true
+    env_file:
+      - ../.env
+    environment:
+      DB_CONNECTION: mariadb
+      DB_HOST: mariadb_dev
+      DB_PORT: 3306
+    volumes:
+      - portfolio_admin_storage:/var/www/storage
+    networks:
+      - db-net
+      - portfolio-internal
 
 networks:
-    traefik-proxy:
-        external: true
-        name: traefik-proxy
-    db-net:
-        external: true
-        name: db-net
+  traefik-proxy:
+    external: true
+    name: traefik-proxy
+  db-net:
+    external: true
+    name: db-net
+  portfolio-internal:
+    internal: true
 
 volumes:
-    portfolio_admin_storage_data:
-        name: portfolio_admin_storage_data
+  portfolio_admin_storage:
+    name: portfolio_admin_storage
+  portfolio_admin_public_assets:
+    name: portfolio_admin_public_assets
