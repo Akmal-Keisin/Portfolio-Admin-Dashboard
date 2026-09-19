@@ -57,7 +57,7 @@ services:
       DB_HOST: mariadb_dev
       DB_PORT: 3306
     networks:
-      - db-net
+      - prod_internal
       - portfolio-internal
     healthcheck:
       test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
@@ -82,18 +82,15 @@ services:
     volumes:
       - portfolio_admin_storage:/var/www/storage
     networks:
-      - db-net
-      - portfolio-internal
+      - prod_internal
 
 networks:
   traefik-proxy:
     external: true
     name: traefik-proxy
-  db-net:
-    external: true
-    name: db-net
-  portfolio-internal:
+  prod_internal:
     internal: true
+    name: prod_internal
 
 volumes:
   portfolio_admin_storage:
