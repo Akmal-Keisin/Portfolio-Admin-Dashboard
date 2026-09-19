@@ -44,7 +44,10 @@ cp deploy/prod/.env.example deploy/prod/.env  # then set APP_KEY
 mkdir -p deploy/prod/secrets
 echo 'same password as /opt/infra/mariadb/prod/secrets/db_password.txt' \
   > deploy/prod/secrets/db_password.txt
-chmod 600 deploy/prod/secrets/db_password.txt
+# 644: containers run as www-data and compose mounts the file with these perms.
+# 700 on the dir keeps other host users out.
+chmod 700 deploy/prod/secrets
+chmod 644 deploy/prod/secrets/db_password.txt
 (cd /opt/infra/mariadb/prod && docker compose up -d)
 (cd /opt/infra/traefik/prod && docker compose up -d)
 docker compose -f deploy/prod/docker-compose.yaml up -d --build

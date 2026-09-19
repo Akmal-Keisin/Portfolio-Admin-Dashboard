@@ -29,7 +29,8 @@ services:
       # HTTP only for now: /opt/infra/traefik/prod has no websecure entrypoint
       # or ACME resolver yet. When TLS is added, switch to websecure and set
       # traefik.http.routers.portfolio-admin.tls.certresolver.
-      - "traefik.http.routers.portfolio-admin.entrypoints=web"
+      - "traefik.http.routers.portfolio-admin.entrypoints=websecure"
+      - "traefik.http.routers.portfolio-admin.tls.certresolver=letsencrypt"
       - "traefik.http.services.portfolio-admin.loadbalancer.server.port=80"
     depends_on:
       php-fpm:
