@@ -5,9 +5,10 @@
 node_modules
 vendor
 
-.env
-.env.*
-!.env.example
+# env files never ship in the image (templates are fine)
+**/.env
+**/.env.*
+!**/.env.example
 
 storage/framework/cache/*
 storage/framework/sessions/*
@@ -17,6 +18,10 @@ storage/logs/*
 
 public/build
 public/hot
+public/storage
+
+# prod docker secrets
+deploy/*/secrets
 
 .dockerignore
 

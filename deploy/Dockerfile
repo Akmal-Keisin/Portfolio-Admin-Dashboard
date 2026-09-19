@@ -54,6 +54,13 @@ WORKDIR /var/www
 # -----------------------------------------------------------
 COPY . /var/www
 
+# Expose the public disk at /var/www/public/storage
+# -----------------------------------------------------------
+# Created at build time so both nginx and php-fpm images have the symlink;
+# the storage volume it points into is mounted at runtime.
+# -----------------------------------------------------------
+RUN ln -sfn ../storage/app/public /var/www/public/storage
+
 # Install Composer and dependencies
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
@@ -170,7 +177,13 @@ COPY --from=builder /var/www /var/www
 
 WORKDIR /var/www
 RUN chown -R www-data:www-data /var/www
+
+# Copy the initialization script (exports docker secrets to env vars)
+COPY ./deploy/php-cli/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 USER www-data
 
 # Default to a shell so commands can be passed
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["sh"]

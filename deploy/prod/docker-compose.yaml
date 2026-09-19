@@ -1,0 +1,111 @@
+name: portfolio-admin-prod
+
+# Production: joins the external `prod_internal` network created by
+# /opt/infra/mariadb/prod and opts in to /opt/infra/traefik/prod for HTTP
+# routing. App config lives in .env, the DB password in
+# secrets/db_password.txt (same value as
+# /opt/infra/mariadb/prod/secrets/db_password.txt).
+
+x-build: &build
+  context: ../..
+  dockerfile: ./deploy/Dockerfile
+
+services:
+  web:
+    build:
+      <<: *build
+      target: web
+    container_name: portfolio-admin-web
+    restart: always
+    volumes:
+      - portfolio_admin_storage:/var/www/storage:ro
+    networks:
+      - app
+      - traefik_prod_edge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_prod_edge"
+      - "traefik.http.routers.portfolio-admin.rule=Host(`portfolio-admin.akmalkeisin.com`)"
+      # HTTP only for now: /opt/infra/traefik/prod has no websecure entrypoint
+      # or ACME resolver yet. When TLS is added, switch to websecure and set
+      # traefik.http.routers.portfolio-admin.tls.certresolver.
+      - "traefik.http.routers.portfolio-admin.entrypoints=web"
+      - "traefik.http.services.portfolio-admin.loadbalancer.server.port=80"
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+  php-fpm:
+    build:
+      <<: *build
+      target: php-fpm
+    container_name: portfolio-admin-php-fpm
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - portfolio_admin_storage:/var/www/storage
+    networks:
+      - app
+      - mariadb_internal
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      # only enforced under `docker stack deploy` (Swarm); harmless otherwise
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+  php-cli:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-php-cli
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+    environment:
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - portfolio_admin_storage:/var/www/storage
+    networks:
+      - app
+      - mariadb_internal
+
+networks:
+  app:
+    internal: true
+  traefik_prod_edge:
+    external: true
+    name: traefik_prod_edge
+  mariadb_internal:
+    external: true
+    name: prod_internal
+
+volumes:
+  # unsuffixed name kept: existing deployments already have data here
+  portfolio_admin_storage:
+    name: portfolio_admin_storage
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt

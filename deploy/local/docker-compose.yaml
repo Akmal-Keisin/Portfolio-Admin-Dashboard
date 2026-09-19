@@ -1,0 +1,94 @@
+name: portfolio-admin-local
+
+# Local machine stack: routes through /opt/infra/traefik/local and talks to the
+# MariaDB you run locally. On a host where /opt/infra/mariadb/dev already holds
+# port 3306 (and the `private_portfolio` data), that is the DB you get - start
+# it first. Credentials are hardcoded and local-only.
+
+x-build: &build
+  context: ../..
+  dockerfile: ./deploy/Dockerfile
+
+x-app-env: &app-env
+  APP_NAME: Portfolio Admin
+  APP_ENV: local
+  # local-only throwaway key - never reuse outside local
+  APP_KEY: "base64:jAg335fzuD8xTAW91fN+jypGtpqJ8tI1CQFouPBcygw="
+  APP_DEBUG: "true"
+  APP_URL: http://portfolio-admin.localhost
+  LOG_LEVEL: debug
+  DB_CONNECTION: mariadb
+  # the running /opt/infra/mariadb/dev, reached over db-net
+  DB_HOST: mariadb_dev
+  DB_PORT: "3306"
+  DB_DATABASE: private_portfolio
+  DB_USERNAME: dev_user
+  DB_PASSWORD: dev_user_password
+  FRONTEND_URL: http://localhost:3000
+
+services:
+  web:
+    build:
+      <<: *build
+      target: web
+    container_name: portfolio-admin-web-local
+    restart: unless-stopped
+    volumes:
+      - portfolio_admin_storage_local:/var/www/storage:ro
+    networks:
+      - app
+      - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-proxy"
+      - "traefik.http.routers.portfolio-admin-local.rule=Host(`portfolio-admin.localhost`)"
+      - "traefik.http.routers.portfolio-admin-local.entrypoints=web"
+      - "traefik.http.services.portfolio-admin-local.loadbalancer.server.port=80"
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+  php-fpm:
+    build:
+      <<: *build
+      target: php-fpm
+    container_name: portfolio-admin-php-fpm-local
+    restart: unless-stopped
+    environment: *app-env
+    volumes:
+      - portfolio_admin_storage_local:/var/www/storage
+    networks:
+      - app
+      - db-net
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  php-cli:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-php-cli-local
+    stdin_open: true
+    tty: true
+    environment: *app-env
+    volumes:
+      - portfolio_admin_storage_local:/var/www/storage
+    networks:
+      - app
+      - db-net
+
+networks:
+  app: {}
+  traefik-proxy:
+    external: true
+    name: traefik-proxy
+  db-net:
+    external: true
+    name: db-net
+
+volumes:
+  portfolio_admin_storage_local:
+    name: portfolio_admin_storage_local

@@ -1,0 +1,77 @@
+name: portfolio-admin-dev
+
+# Shared dev server: joins the external `db-net` network where
+# /opt/infra/mariadb/dev publishes `mariadb_dev:3306`, and opts in to
+# /opt/infra/traefik/dev for HTTP routing. Credentials live in .env
+# (copy .env.example) and must match /opt/infra/mariadb/dev/.env.
+
+x-build: &build
+  context: ../..
+  dockerfile: ./deploy/Dockerfile
+
+services:
+  web:
+    build:
+      <<: *build
+      target: web
+    container_name: portfolio-admin-web-dev
+    restart: unless-stopped
+    volumes:
+      - portfolio_admin_storage_dev:/var/www/storage:ro
+    networks:
+      - app
+      - db-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=db-net"
+      - "traefik.http.routers.portfolio-admin-dev.rule=Host(`portfolio-admin.dev.akmalkeisin.com`)"
+      - "traefik.http.routers.portfolio-admin-dev.entrypoints=web"
+      - "traefik.http.services.portfolio-admin-dev.loadbalancer.server.port=80"
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+  php-fpm:
+    build:
+      <<: *build
+      target: php-fpm
+    container_name: portfolio-admin-php-fpm-dev
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - portfolio_admin_storage_dev:/var/www/storage
+    networks:
+      - app
+      - db-net
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  php-cli:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-php-cli-dev
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+    volumes:
+      - portfolio_admin_storage_dev:/var/www/storage
+    networks:
+      - app
+      - db-net
+
+networks:
+  app:
+    internal: true
+  db-net:
+    external: true
+    name: db-net
+
+volumes:
+  portfolio_admin_storage_dev:
+    name: portfolio_admin_storage_dev
