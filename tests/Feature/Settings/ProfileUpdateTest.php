@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Settings;
 
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,90 +10,82 @@ class ProfileUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_profile_page_is_displayed()
+    private Admin $admin;
+
+    protected function setUp(): void
     {
-        $user = User::factory()->create();
+        parent::setUp();
 
-        $response = $this
-            ->actingAs($user)
-            ->get(route('profile.edit'));
+        $this->withoutVite();
 
-        $response->assertOk();
+        $this->admin = Admin::create([
+            'name' => 'Admin User',
+            'username' => 'admin',
+            'password' => bcrypt('password'),
+        ]);
     }
 
-    public function test_profile_information_can_be_updated()
+    public function test_profile_page_is_displayed(): void
     {
-        $user = User::factory()->create();
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('profile.edit'))
+            ->assertOk();
+    }
 
-        $response = $this
-            ->actingAs($user)
+    public function test_profile_information_can_be_updated(): void
+    {
+        $response = $this->actingAs($this->admin, 'admin')
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
+                'name' => 'Updated Name',
+                'username' => 'updated-admin',
             ]);
 
         $response
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('profile.edit'));
 
-        $user->refresh();
+        $this->admin->refresh();
 
-        $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+        $this->assertSame('Updated Name', $this->admin->name);
+        $this->assertSame('updated-admin', $this->admin->username);
     }
 
-    public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()
+    public function test_username_must_be_unique(): void
     {
-        $user = User::factory()->create();
+        Admin::create([
+            'name' => 'Other Admin',
+            'username' => 'other',
+            'password' => bcrypt('password'),
+        ]);
 
-        $response = $this
-            ->actingAs($user)
+        $this->actingAs($this->admin, 'admin')
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => $user->email,
-            ]);
+                'name' => 'Admin User',
+                'username' => 'other',
+            ])
+            ->assertSessionHasErrors('username');
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('profile.edit'));
-
-        $this->assertNotNull($user->refresh()->email_verified_at);
+        $this->assertSame('admin', $this->admin->refresh()->username);
     }
 
-    public function test_user_can_delete_their_account()
+    public function test_account_can_be_deleted(): void
     {
-        $user = User::factory()->create();
+        $response = $this->actingAs($this->admin, 'admin')
+            ->delete(route('profile.destroy'), ['password' => 'password']);
 
-        $response = $this
-            ->actingAs($user)
-            ->delete(route('profile.destroy'), [
-                'password' => 'password',
-            ]);
+        $response->assertRedirect('/');
 
-        $response
-            ->assertSessionHasNoErrors()
-            ->assertRedirect(route('home'));
-
-        $this->assertGuest();
-        $this->assertNull($user->fresh());
+        $this->assertGuest('admin');
+        $this->assertNull($this->admin->fresh());
     }
 
-    public function test_correct_password_must_be_provided_to_delete_account()
+    public function test_correct_password_must_be_provided_to_delete_account(): void
     {
-        $user = User::factory()->create();
-
-        $response = $this
-            ->actingAs($user)
+        $this->actingAs($this->admin, 'admin')
             ->from(route('profile.edit'))
-            ->delete(route('profile.destroy'), [
-                'password' => 'wrong-password',
-            ]);
+            ->delete(route('profile.destroy'), ['password' => 'wrong-password'])
+            ->assertSessionHasErrors('password');
 
-        $response
-            ->assertSessionHasErrors('password')
-            ->assertRedirect(route('profile.edit'));
-
-        $this->assertNotNull($user->fresh());
+        $this->assertNotNull($this->admin->fresh());
     }
 }

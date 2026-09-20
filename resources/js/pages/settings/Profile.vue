@@ -9,13 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 
-type Props = {
-    mustVerifyEmail: boolean;
-    status?: string;
-};
-
-defineProps<Props>();
-
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 </script>
@@ -30,7 +23,7 @@ const user = computed(() => page.props.auth.user);
             <Heading
                 variant="small"
                 title="Profile information"
-                description="Update your name and email address"
+                description="Update your name and username"
             />
 
             <Form
@@ -53,18 +46,17 @@ const user = computed(() => page.props.auth.user);
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="username">Username</Label>
                     <Input
-                        id="email"
-                        type="email"
+                        id="username"
                         class="mt-1 block w-full"
-                        name="email"
-                        :default-value="user.email"
+                        name="username"
+                        :default-value="user.username"
                         required
                         autocomplete="username"
-                        placeholder="Email address"
+                        placeholder="Username"
                     />
-                    <InputError class="mt-2" :message="errors.email" />
+                    <InputError class="mt-2" :message="errors.username" />
                 </div>
 
                 <div class="flex items-center gap-4">

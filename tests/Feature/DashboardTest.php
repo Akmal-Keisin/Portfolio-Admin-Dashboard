@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -16,10 +16,15 @@ class DashboardTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
-    public function test_authenticated_users_can_visit_the_dashboard()
+    public function test_authenticated_admins_can_visit_the_dashboard()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        $admin = Admin::create([
+            'name' => 'Admin User',
+            'username' => 'admin',
+            'password' => bcrypt('password'),
+        ]);
+
+        $this->actingAs($admin, 'admin');
 
         $response = $this->get(route('dashboard'));
         $response->assertOk();

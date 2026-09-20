@@ -2,96 +2,84 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\RateLimiter;
-use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_screen_can_be_rendered()
-    {
-        $response = $this->get(route('login'));
+    protected Admin $admin;
 
-        $response->assertOk();
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->admin = Admin::create([
+            'name' => 'Admin User',
+            'username' => 'admin',
+            'password' => bcrypt('password'),
+        ]);
     }
 
-    public function test_users_can_authenticate_using_the_login_screen()
+    public function test_login_screen_can_be_rendered()
     {
-        $user = User::factory()->create();
+        $this->get(route('login'))->assertOk();
+    }
 
-        $response = $this->post(route('login.store'), [
-            'email' => $user->email,
+    public function test_admins_can_authenticate_using_the_login_screen()
+    {
+        $response = $this->post(route('post-login'), [
+            'username' => $this->admin->username,
             'password' => 'password',
         ]);
 
-        $this->assertAuthenticated();
+        $this->assertAuthenticated('admin');
         $response->assertRedirect(route('dashboard', absolute: false));
     }
 
-    public function test_users_with_two_factor_enabled_are_redirected_to_two_factor_challenge()
+    public function test_admins_can_not_authenticate_with_invalid_password()
     {
-        $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-        ]);
-
-        $user = User::factory()->create();
-
-        $user->forceFill([
-            'two_factor_secret' => encrypt('test-secret'),
-            'two_factor_recovery_codes' => encrypt(json_encode(['code1', 'code2'])),
-            'two_factor_confirmed_at' => now(),
-        ])->save();
-
-        $response = $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $response->assertRedirect(route('two-factor.login'));
-        $response->assertSessionHas('login.id', $user->id);
-        $this->assertGuest();
-    }
-
-    public function test_users_can_not_authenticate_with_invalid_password()
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login.store'), [
-            'email' => $user->email,
+        $this->post(route('post-login'), [
+            'username' => $this->admin->username,
             'password' => 'wrong-password',
         ]);
 
-        $this->assertGuest();
+        $this->assertGuest('admin');
     }
 
-    public function test_users_can_logout()
+    public function test_admins_can_remember_their_login()
     {
-        $user = User::factory()->create();
+        $this->post(route('post-login'), [
+            'username' => $this->admin->username,
+            'password' => 'password',
+            'remember' => true,
+        ]);
 
-        $response = $this->actingAs($user)->post(route('logout'));
+        $this->assertNotNull($this->admin->fresh()->getRememberToken());
+    }
 
-        $this->assertGuest();
+    public function test_admins_can_logout()
+    {
+        $response = $this->actingAs($this->admin, 'admin')->post(route('logout'));
+
+        $this->assertGuest('admin');
         $response->assertRedirect(route('home'));
     }
 
-    public function test_users_are_rate_limited()
+    public function test_login_is_rate_limited()
     {
-        $user = User::factory()->create();
+        for ($attempt = 0; $attempt < 6; $attempt++) {
+            $this->post(route('post-login'), [
+                'username' => $this->admin->username,
+                'password' => 'wrong-password',
+            ]);
+        }
 
-        RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
-
-        $response = $this->post(route('login.store'), [
-            'email' => $user->email,
+        $this->post(route('post-login'), [
+            'username' => $this->admin->username,
             'password' => 'wrong-password',
-        ]);
-
-        $response->assertTooManyRequests();
+        ])->assertTooManyRequests();
     }
 }
