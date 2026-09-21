@@ -5,18 +5,6 @@ import { Heading, InputError, PasswordInput } from '@/components/shared';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-
-type Props = {
-    canManageTwoFactor?: boolean;
-    requiresConfirmation?: boolean;
-    twoFactorEnabled?: boolean;
-};
-
-withDefaults(defineProps<Props>(), {
-    canManageTwoFactor: false,
-    requiresConfirmation: false,
-    twoFactorEnabled: false,
-});
 </script>
 
 <template>
