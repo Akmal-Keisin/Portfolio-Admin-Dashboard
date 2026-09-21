@@ -1,1 +1,1 @@
-export { default as TipTap } from './TipTap.vue'
+export { default as TipTap } from './TipTap.vue';

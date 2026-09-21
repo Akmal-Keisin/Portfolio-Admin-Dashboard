@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { File, LayoutGrid, Layers, Milestone, Tag, Mail } from 'lucide-vue-next';
+import {
+    File,
+    LayoutGrid,
+    Layers,
+    Milestone,
+    Tag,
+    Mail,
+} from 'lucide-vue-next';
 import { AppLogo } from '@/components/layout';
 import { NavFooter, NavMain, NavUser } from '@/components/nav';
 import {

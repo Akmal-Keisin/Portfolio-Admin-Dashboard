@@ -38,7 +38,7 @@ class ViewMessageController extends Controller
     public function show(Message $message): Response
     {
         // Mark as read when viewing
-        if (!$message->is_read) {
+        if (! $message->is_read) {
             $message->update(['is_read' => true]);
         }
 

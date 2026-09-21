@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { AppContent, AppShell, AppSidebar, AppSidebarHeader } from '@/components/layout';
+import {
+    AppContent,
+    AppShell,
+    AppSidebar,
+    AppSidebarHeader,
+} from '@/components/layout';
 import { Toaster } from '@/components/ui/sonner';
 import type { BreadcrumbItem } from '@/types';
 

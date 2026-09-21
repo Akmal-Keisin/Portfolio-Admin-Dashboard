@@ -38,7 +38,7 @@ const breadcrumbs = ref([
     },
     {
         title: 'Edit',
-        href: techStackRoute.edit(props.techStack.id).url,
+        href: techStackRoute.edit(props.techStack.slug).url,
     },
 ]);
 
@@ -49,7 +49,7 @@ const form = useForm<TechStackForm>({
 });
 
 const handleSubmit = () => {
-    form.put(techStackRoute.update(props.techStack.id).url);
+    form.put(techStackRoute.update(props.techStack.slug).url);
 };
 
 onMounted(() => {

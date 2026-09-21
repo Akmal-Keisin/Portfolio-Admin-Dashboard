@@ -52,7 +52,7 @@ const breadcrumbs = ref([
     },
     {
         title: 'Edit',
-        href: articleRoute.edit(props.article.id),
+        href: articleRoute.edit(props.article.slug),
     },
 ]);
 
@@ -60,7 +60,7 @@ const breadcrumbs = ref([
 const form = useForm<ArticleForm>({
     title: props.article.title,
     content: props.article.content,
-    category: props.article.category_id,
+    category: props.article.category.id,
     tags: props.article.tags.map((tag) => tag.id),
 });
 
@@ -70,7 +70,7 @@ const handleUpdateContent = (content: JSONContent) => {
 };
 
 const handleSubmit = () => {
-    form.put(articleRoute.update(props.article.id));
+    form.put(articleRoute.update(props.article.slug).url);
 };
 </script>
 

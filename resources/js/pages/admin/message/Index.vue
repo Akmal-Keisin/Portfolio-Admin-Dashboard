@@ -8,9 +8,9 @@ import {
     MailOpenIcon,
     StarIcon,
     Trash2Icon,
-    EyeIcon
+    EyeIcon,
 } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -21,6 +21,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -36,14 +37,13 @@ import TableCell from '@/components/ui/table/TableCell.vue';
 import TableHead from '@/components/ui/table/TableHead.vue';
 import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
-import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/AppLayout.vue';
 import messageRoute from '@/routes/messages';
 import type { PaginatedResource } from '@/types';
 import type { Message } from '@/types/model/message';
 
 // Props
-const props = defineProps<{
+defineProps<{
     messages: PaginatedResource<Message>;
     filters: {
         status: 'inbox' | 'archived';
@@ -74,15 +74,27 @@ function confirmDelete() {
 }
 
 function toggleRead(message: Message) {
-    router.patch(messageRoute.toggleRead(message.id), {}, { preserveScroll: true });
+    router.patch(
+        messageRoute.toggleRead(message.id),
+        {},
+        { preserveScroll: true },
+    );
 }
 
 function toggleImportant(message: Message) {
-    router.patch(messageRoute.toggleImportant(message.id), {}, { preserveScroll: true });
+    router.patch(
+        messageRoute.toggleImportant(message.id),
+        {},
+        { preserveScroll: true },
+    );
 }
 
 function toggleArchive(message: Message) {
-    router.patch(messageRoute.toggleArchive(message.id), {}, { preserveScroll: true });
+    router.patch(
+        messageRoute.toggleArchive(message.id),
+        {},
+        { preserveScroll: true },
+    );
 }
 
 function switchStatus(status: 'inbox' | 'archived') {
@@ -96,14 +108,23 @@ function switchStatus(status: 'inbox' | 'archived') {
         <AlertDialog :open="!!pendingDelete">
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle
+                        >Are you absolutely sure?</AlertDialogTitle
+                    >
                     <AlertDialogDescription>
-                        This will permanently delete the message from <strong>{{ pendingDelete?.name }}</strong>. This action cannot be undone.
+                        This will permanently delete the message from
+                        <strong>{{ pendingDelete?.name }}</strong
+                        >. This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel @click="pendingDelete = null">Cancel</AlertDialogCancel>
-                    <AlertDialogAction @click="confirmDelete" class="bg-destructive hover:bg-destructive/70">
+                    <AlertDialogCancel @click="pendingDelete = null"
+                        >Cancel</AlertDialogCancel
+                    >
+                    <AlertDialogAction
+                        @click="confirmDelete"
+                        class="bg-destructive hover:bg-destructive/70"
+                    >
                         <Trash2Icon class="mr-2 size-4" />
                         Delete
                     </AlertDialogAction>
@@ -113,11 +134,13 @@ function switchStatus(status: 'inbox' | 'archived') {
 
         <!-- Status Filter Tabs -->
         <section class="mb-4">
-            <div class="inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
+            <div
+                class="inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800"
+            >
                 <button
                     @click="switchStatus('inbox')"
                     :class="[
-                        'flex items-center rounded-md px-4 py-2 transition-colors text-sm font-medium',
+                        'flex items-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
                         filters.status === 'inbox'
                             ? 'bg-white shadow-sm dark:bg-neutral-700 dark:text-neutral-100'
                             : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
@@ -128,7 +151,7 @@ function switchStatus(status: 'inbox' | 'archived') {
                 <button
                     @click="switchStatus('archived')"
                     :class="[
-                        'flex items-center rounded-md px-4 py-2 transition-colors text-sm font-medium',
+                        'flex items-center rounded-md px-4 py-2 text-sm font-medium transition-colors',
                         filters.status === 'archived'
                             ? 'bg-white shadow-sm dark:bg-neutral-700 dark:text-neutral-100'
                             : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
@@ -142,11 +165,13 @@ function switchStatus(status: 'inbox' | 'archived') {
         <!-- Page Content Section -->
         <section class="overflow-hidden rounded-sm border">
             <Table>
-                <TableCaption>List of {{ filters.status }} messages.</TableCaption>
+                <TableCaption
+                    >List of {{ filters.status }} messages.</TableCaption
+                >
                 <TableHeader class="sticky top-0 z-10 bg-muted">
                     <TableRow>
                         <TableHead class="w-10 text-center">
-                            <StarIcon class="size-4 mx-auto" />
+                            <StarIcon class="mx-auto size-4" />
                         </TableHead>
                         <TableHead>Sender</TableHead>
                         <TableHead>Subject</TableHead>
@@ -160,38 +185,61 @@ function switchStatus(status: 'inbox' | 'archived') {
                         v-for="message in messages.data"
                         :key="message.id"
                         :class="[
-                            !message.isRead ? 'bg-muted/30 font-semibold' : ''
+                            !message.isRead ? 'bg-muted/30 font-semibold' : '',
                         ]"
                     >
                         <TableCell class="text-center">
-                            <button @click="toggleImportant(message)" class="hover:text-yellow-500 transition-colors">
-                                <StarIcon 
+                            <button
+                                @click="toggleImportant(message)"
+                                class="transition-colors hover:text-yellow-500"
+                            >
+                                <StarIcon
                                     :class="[
-                                        'size-4 mx-auto',
-                                        message.isImportant ? 'fill-yellow-500 text-yellow-500' : 'text-muted-foreground'
-                                    ]" 
+                                        'mx-auto size-4',
+                                        message.isImportant
+                                            ? 'fill-yellow-500 text-yellow-500'
+                                            : 'text-muted-foreground',
+                                    ]"
                                 />
                             </button>
                         </TableCell>
                         <TableCell>
                             <div class="flex flex-col">
                                 <span>{{ message.name }}</span>
-                                <span class="text-xs text-muted-foreground font-normal">{{ message.email }}</span>
+                                <span
+                                    class="text-xs font-normal text-muted-foreground"
+                                    >{{ message.email }}</span
+                                >
                             </div>
                         </TableCell>
                         <TableCell>
                             <div class="flex items-center gap-2">
-                                <Link :href="messageRoute.show(message.id)" class="hover:underline">
+                                <Link
+                                    :href="messageRoute.show(message.id)"
+                                    class="hover:underline"
+                                >
                                     {{ message.subject }}
                                 </Link>
-                                <Badge v-if="!message.isRead" variant="secondary" class="text-[10px] px-1.5 py-0 h-4">New</Badge>
+                                <Badge
+                                    v-if="!message.isRead"
+                                    variant="secondary"
+                                    class="h-4 px-1.5 py-0 text-[10px]"
+                                    >New</Badge
+                                >
                             </div>
                         </TableCell>
                         <TableCell class="text-xs text-muted-foreground">
                             {{ message.diffForHumans }}
                         </TableCell>
                         <TableCell>
-                            <Badge :variant="message.status === 'archived' ? 'outline' : 'default'" class="capitalize">
+                            <Badge
+                                :variant="
+                                    message.status === 'archived'
+                                        ? 'outline'
+                                        : 'default'
+                                "
+                                class="capitalize"
+                            >
                                 {{ message.status }}
                             </Badge>
                         </TableCell>
@@ -203,23 +251,52 @@ function switchStatus(status: 'inbox' | 'archived') {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    
+                                    <DropdownMenuLabel
+                                        >Actions</DropdownMenuLabel
+                                    >
+
                                     <DropdownMenuItem as-child>
-                                        <Link :href="messageRoute.show(message.id)">
+                                        <Link
+                                            :href="
+                                                messageRoute.show(message.id)
+                                            "
+                                        >
                                             <EyeIcon class="mr-2 size-4" />
                                             View Details
                                         </Link>
                                     </DropdownMenuItem>
 
-                                    <DropdownMenuItem @click="toggleRead(message)">
-                                        <component :is="message.isRead ? MailIcon : MailOpenIcon" class="mr-2 size-4" />
-                                        Mark as {{ message.isRead ? 'Unread' : 'Read' }}
+                                    <DropdownMenuItem
+                                        @click="toggleRead(message)"
+                                    >
+                                        <component
+                                            :is="
+                                                message.isRead
+                                                    ? MailIcon
+                                                    : MailOpenIcon
+                                            "
+                                            class="mr-2 size-4"
+                                        />
+                                        Mark as
+                                        {{ message.isRead ? 'Unread' : 'Read' }}
                                     </DropdownMenuItem>
 
-                                    <DropdownMenuItem @click="toggleArchive(message)">
-                                        <component :is="message.status === 'inbox' ? ArchiveIcon : ArchiveRestoreIcon" class="mr-2 size-4" />
-                                        {{ message.status === 'inbox' ? 'Archive' : 'Move to Inbox' }}
+                                    <DropdownMenuItem
+                                        @click="toggleArchive(message)"
+                                    >
+                                        <component
+                                            :is="
+                                                message.status === 'inbox'
+                                                    ? ArchiveIcon
+                                                    : ArchiveRestoreIcon
+                                            "
+                                            class="mr-2 size-4"
+                                        />
+                                        {{
+                                            message.status === 'inbox'
+                                                ? 'Archive'
+                                                : 'Move to Inbox'
+                                        }}
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem
@@ -234,7 +311,10 @@ function switchStatus(status: 'inbox' | 'archived') {
                         </TableCell>
                     </TableRow>
                     <TableRow v-if="messages.data.length === 0">
-                        <TableCell colspan="6" class="h-24 text-center text-muted-foreground">
+                        <TableCell
+                            colspan="6"
+                            class="h-24 text-center text-muted-foreground"
+                        >
                             No messages found in {{ filters.status }}.
                         </TableCell>
                     </TableRow>

@@ -64,7 +64,7 @@ function confirmDelete() {
         return;
     }
 
-    router.delete(techStackRoute.destroy(pendingDelete.value.id).url, {
+    router.delete(techStackRoute.destroy(pendingDelete.value.slug).url, {
         onFinish: () => {
             pendingDelete.value = null;
         },
@@ -165,7 +165,7 @@ function confirmDelete() {
                                         <Link
                                             :href="
                                                 techStackRoute.edit(
-                                                    techStack.id,
+                                                    techStack.slug,
                                                 ).url
                                             "
                                         >

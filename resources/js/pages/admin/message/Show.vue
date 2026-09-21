@@ -23,16 +23,15 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/AppLayout.vue';
 import messageRoute from '@/routes/messages';
 import type { Message } from '@/types/model/message';
@@ -60,7 +59,7 @@ const showDeleteDialog = ref(false);
 function confirmDelete() {
     router.delete(messageRoute.destroy(props.message.id), {
         onFinish: () => {
-            showDeleteDialog.ref = false;
+            showDeleteDialog.value = false;
         },
     });
 }

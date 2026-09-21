@@ -10,7 +10,7 @@ import {
     Github,
     CheckCircle2,
     Clock,
-    Star
+    Star,
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import {
@@ -23,6 +23,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -36,7 +37,6 @@ import {
     InputGroupAddon,
     InputGroupInput,
 } from '@/components/ui/input-group';
-import { Badge } from '@/components/ui/badge';
 import Table from '@/components/ui/table/Table.vue';
 import TableBody from '@/components/ui/table/TableBody.vue';
 import TableCaption from '@/components/ui/table/TableCaption.vue';
@@ -45,7 +45,6 @@ import TableHead from '@/components/ui/table/TableHead.vue';
 import TableHeader from '@/components/ui/table/TableHeader.vue';
 import TableRow from '@/components/ui/table/TableRow.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-// @ts-ignore - generated route
 import projectRoute from '@/routes/project';
 import type { PaginatedResource } from '@/types';
 import type { Project } from '@/types/model/project';
@@ -163,33 +162,64 @@ function confirmDelete() {
                             (projects.meta.from ?? 0) + index
                         }}</TableCell>
                         <TableCell>
-                            <img 
-                                v-if="project.thumbnail" 
-                                :src="project.thumbnail" 
-                                class="h-10 w-16 object-cover rounded border" 
+                            <img
+                                v-if="project.thumbnail"
+                                :src="project.thumbnail"
+                                class="h-10 w-16 rounded border object-cover"
                                 alt="thumbnail"
                             />
-                            <div v-else class="h-10 w-16 bg-muted rounded border flex items-center justify-center text-[10px] text-muted-foreground">
+                            <div
+                                v-else
+                                class="flex h-10 w-16 items-center justify-center rounded border bg-muted text-[10px] text-muted-foreground"
+                            >
                                 No Image
                             </div>
                         </TableCell>
-                        <TableCell class="font-semibold">{{ project.title }}</TableCell>
+                        <TableCell class="font-semibold">{{
+                            project.title
+                        }}</TableCell>
                         <TableCell>
-                            <Badge :variant="project.status === 'completed' ? 'default' : 'secondary'">
-                                <component :is="project.status === 'completed' ? CheckCircle2 : Clock" class="mr-1 size-3" />
+                            <Badge
+                                :variant="
+                                    project.status === 'completed'
+                                        ? 'default'
+                                        : 'secondary'
+                                "
+                            >
+                                <component
+                                    :is="
+                                        project.status === 'completed'
+                                            ? CheckCircle2
+                                            : Clock
+                                    "
+                                    class="mr-1 size-3"
+                                />
                                 {{ project.status }}
                             </Badge>
                         </TableCell>
                         <TableCell>
-                            <Star v-if="project.featured" class="size-4 text-yellow-500 fill-yellow-500" />
+                            <Star
+                                v-if="project.featured"
+                                class="size-4 fill-yellow-500 text-yellow-500"
+                            />
                             <Star v-else class="size-4 text-muted" />
                         </TableCell>
                         <TableCell>
                             <div class="flex space-x-2">
-                                <a v-if="project.live_url" :href="project.live_url" target="_blank" class="text-primary hover:underline">
+                                <a
+                                    v-if="project.live_url"
+                                    :href="project.live_url"
+                                    target="_blank"
+                                    class="text-primary hover:underline"
+                                >
                                     <ExternalLink class="size-4" />
                                 </a>
-                                <a v-if="project.repo_url" :href="project.repo_url" target="_blank" class="text-primary hover:underline">
+                                <a
+                                    v-if="project.repo_url"
+                                    :href="project.repo_url"
+                                    target="_blank"
+                                    class="text-primary hover:underline"
+                                >
                                     <Github class="size-4" />
                                 </a>
                             </div>

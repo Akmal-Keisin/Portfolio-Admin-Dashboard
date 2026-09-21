@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\MessageController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\TechStackController;
@@ -43,5 +44,5 @@ Route::prefix('tech-stacks')->group(function () {
     Route::get('/{tech_stack}', [TechStackController::class, 'show']);
 });
 
-Route::post('/messages', [\App\Http\Controllers\Api\MessageController::class, 'store'])
+Route::post('/messages', [MessageController::class, 'store'])
     ->middleware('throttle:message_submit');

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin\Message;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class UpdateMessageStatusController extends Controller
 {
@@ -14,7 +13,7 @@ class UpdateMessageStatusController extends Controller
      */
     public function toggleRead(Message $message): RedirectResponse
     {
-        $message->update(['is_read' => !$message->is_read]);
+        $message->update(['is_read' => ! $message->is_read]);
 
         return back();
     }
@@ -24,7 +23,7 @@ class UpdateMessageStatusController extends Controller
      */
     public function toggleImportant(Message $message): RedirectResponse
     {
-        $message->update(['is_important' => !$message->is_important]);
+        $message->update(['is_important' => ! $message->is_important]);
 
         return back();
     }

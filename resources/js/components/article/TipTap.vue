@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'; // Assuming this resolves your tailwind-merge/
 
 const emit = defineEmits(['update:content']);
 const props = defineProps<{
-    content: JSONContent;
+    content?: JSONContent;
 }>();
 
 const editor = useEditor({
