@@ -25,6 +25,9 @@ x-app-env: &app-env
   DB_USERNAME: dev_user
   DB_PASSWORD: dev_user_password
   FRONTEND_URL: http://localhost:3000
+  # Telegram stays disabled while blank; use a local override file or one-off -e flags
+  TELEGRAM_BOT_TOKEN: ""
+  TELEGRAM_CHAT_ID: ""
 
 services:
   web:
@@ -79,6 +82,40 @@ services:
     networks:
       - app
       - db-net
+
+  queue-worker:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-queue-worker-local
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "--sleep=1", "--tries=3", "--max-time=3600", "--max-jobs=500"]
+    environment: *app-env
+    volumes:
+      - portfolio_admin_storage_local:/var/www/storage
+    networks:
+      - app
+      - db-net
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-scheduler-local
+    restart: unless-stopped
+    command: ["php", "artisan", "schedule:work"]
+    environment: *app-env
+    volumes:
+      - portfolio_admin_storage_local:/var/www/storage
+    networks:
+      - app
+      - db-net
+    depends_on:
+      php-fpm:
+        condition: service_healthy
 
 networks:
   app: {}

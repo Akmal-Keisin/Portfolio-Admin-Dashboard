@@ -65,6 +65,42 @@ services:
       - app
       - db-net
 
+  queue-worker:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-queue-worker-dev
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "--sleep=1", "--tries=3", "--max-time=3600", "--max-jobs=500"]
+    env_file:
+      - .env
+    volumes:
+      - portfolio_admin_storage_dev:/var/www/storage
+    networks:
+      - app
+      - db-net
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-scheduler-dev
+    restart: unless-stopped
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env
+    volumes:
+      - portfolio_admin_storage_dev:/var/www/storage
+    networks:
+      - app
+      - db-net
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
 networks:
   app:
     internal: true

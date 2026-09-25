@@ -86,3 +86,50 @@ docker compose -f deploy/{environment}/docker-compose.yaml run --rm php-cli php 
 docker compose -f deploy/{environment}/docker-compose.yaml run --rm php-cli php artisan tinker
 docker compose -f deploy/{environment}/docker-compose.yaml run --rm php-cli php artisan config:cache
 ```
+
+## Telegram notifications
+
+Contact form submissions are pushed to a Telegram chat through a bot, and a
+daily digest of unread messages is scheduled.
+
+One-time setup:
+
+1. Create a bot with [@BotFather](https://t.me/BotFather) and copy its token.
+2. Open a chat with the bot and send `/start` — bots cannot message a user first.
+3. Put the token in `.env` and find your chat ID:
+
+   ```sh
+   php artisan telegram:chat-id
+   ```
+
+4. Put the printed ID in `.env` as `TELEGRAM_CHAT_ID` and verify:
+
+   ```sh
+   php artisan telegram:test
+   ```
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `TELEGRAM_BOT_TOKEN` | — | Bot token from @BotFather |
+| `TELEGRAM_CHAT_ID` | — | Target chat ID |
+| `TELEGRAM_NOTIFICATIONS_ENABLED` | `true` | Set `false` to mute the bot |
+| `TELEGRAM_DIGEST_AT` | `08:00` | Daily digest time |
+| `TELEGRAM_DIGEST_TZ` | `UTC` | Timezone for the digest time |
+
+Every compose stack runs two extra services: `queue-worker` (delivers queued
+notifications, 3 tries with backoff) and `scheduler` (runs `telegram:digest`).
+They read the same `.env` as php-fpm, so set the Telegram variables there
+before `docker compose up -d --build`. Failed deliveries are listed by
+`php artisan queue:failed`.
+
+The local stack keeps Telegram values blank in `deploy/local/docker-compose.yaml`
+so no token lands in git. Test against it with a one-off override:
+
+```sh
+docker compose -f deploy/local/docker-compose.yaml run --rm \
+  -e TELEGRAM_BOT_TOKEN=... -e TELEGRAM_CHAT_ID=... \
+  php-cli php artisan telegram:test
+```
+
+Locally on the host, `composer dev` already runs a queue listener, so contact
+form submissions send immediately in an `.env`-configured install.

@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
+use App\Notifications\NewContactMessage;
+use App\Services\Telegram\TelegramClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class MessageController extends Controller
@@ -30,7 +33,7 @@ class MessageController extends Controller
             ]);
         }
 
-        Message::create([
+        $message = Message::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'subject' => $validated['subject'],
@@ -38,6 +41,11 @@ class MessageController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
         ]);
+
+        if (TelegramClient::configured()) {
+            Notification::route('telegram', config('services.telegram.chat_id'))
+                ->notify(new NewContactMessage($message));
+        }
 
         return response()->json([
             'message' => 'Your message has been sent successfully!',

@@ -92,6 +92,50 @@ services:
       - app
       - mariadb_internal
 
+  queue-worker:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-queue-worker
+    restart: always
+    command: ["php", "artisan", "queue:work", "--sleep=1", "--tries=3", "--max-time=3600", "--max-jobs=500"]
+    env_file:
+      - .env
+    environment:
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - portfolio_admin_storage:/var/www/storage
+    networks:
+      - app
+      - mariadb_internal
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
+  scheduler:
+    build:
+      <<: *build
+      target: php-cli
+    container_name: portfolio-admin-scheduler
+    restart: always
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env
+    environment:
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+    volumes:
+      - portfolio_admin_storage:/var/www/storage
+    networks:
+      - app
+      - mariadb_internal
+    depends_on:
+      php-fpm:
+        condition: service_healthy
+
 networks:
   app:
     internal: true
